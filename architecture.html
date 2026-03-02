@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mad-scientist-skills &mdash; C4 Architecture</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 24px 32px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: #ffffff;
+    }
+
+    p {
+      margin: 0 0 24px 0;
+      color: #a0a0b8;
+      font-size: 0.95rem;
+    }
+
+    code {
+      background: #16213e;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.9em;
+      color: #7ec8e3;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      background: #16213e;
+      color: #a0a0b8;
+      border: 1px solid #2a2a4a;
+      border-radius: 24px;
+      padding: 8px 20px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .tab:hover {
+      background: #1f2b4d;
+      color: #e0e0e0;
+      border-color: #3a3a5a;
+    }
+
+    .tab.active {
+      background: #438DD5;
+      color: #ffffff;
+      border-color: #438DD5;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .svg-container {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      border: 1px solid #2a2a4a;
+    }
+
+    .svg-container svg {
+      display: block;
+      margin: 0 auto;
+      height: auto;
+    }
+
+    .dsl-panel {
+      position: relative;
+      background: #16213e;
+      border-radius: 8px;
+      border: 1px solid #2a2a4a;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .dsl-panel pre {
+      margin: 0;
+      padding: 20px;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #c8d0e0;
+      tab-size: 4;
+    }
+
+    .dsl-panel code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #2a2a4a;
+      color: #a0a0b8;
+      border: 1px solid #3a3a5a;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+
+    .copy-btn:hover {
+      background: #3a3a5a;
+      color: #e0e0e0;
+    }
+
+    .copy-btn.copied {
+      background: #2e7d32;
+      color: #ffffff;
+      border-color: #2e7d32;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 16px; }
+      h1 { font-size: 1.4rem; }
+      .tab { padding: 6px 14px; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>mad-scientist-skills &mdash; C4 Architecture</h1>
+  <p>Generated from <code>architecture.dsl</code> using the Structurizr &rarr; PlantUML rendering pipeline.</p>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="system-context">System Context</button>
+    <button class="tab" data-tab="containers">Containers</button>
+    <button class="tab" data-tab="dsl">Structurizr DSL</button>
+  </div>
+
+  <div id="system-context" class="tab-content active">
+    <div class="svg-container">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="DESCRIPTION" height="365px" preserveAspectRatio="none" style="width:940px;height:365px;background:#FFFFFF;" version="1.1" viewBox="0 0 940 365" width="940px" zoomAndPan="magnify"><defs/><g><!--entity madscientistskills--><g class="entity" data-qualified-name="madscientistskills" data-source-line="197" id="ent0002"><rect fill="#1168BD" height="128.1719" style="stroke:#3C7FC0;stroke-width:0.5;" width="205.9854" x="347" y="104.6875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="148.5" x="375.7427" y="131.2969">mad-scientist-skills</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="448.0479" y="149.3457">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44.3652" x="357" y="166.9551">Claude</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="401.3652" y="166.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="33.4688" x="405.2549" y="166.9551">Code</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="438.7236" y="166.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37.3652" x="442.6133" y="166.9551">plugin</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="479.9785" y="166.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="24.8965" x="483.8682" y="166.9551">with</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="508.7646" y="166.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="30.3311" x="512.6543" y="166.9551">skills</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="16.3379" x="361.2861" y="184.5645">for</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="377.624" y="184.5645">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73.1445" x="381.5137" y="184.5645">architecture</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="454.6582" y="184.5645">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="80.1514" x="458.5479" y="184.5645">visualization,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="48.2344" x="383.8413" y="202.1738">security</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="432.0757" y="202.1738">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.9307" x="435.9653" y="202.1738">auditing,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="488.896" y="202.1738">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="23.3584" x="492.7856" y="202.1738">and</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="70.0068" x="370.6377" y="219.7832">pre-commit</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="440.6445" y="219.7832">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40.4688" x="444.5342" y="219.7832">quality</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="485.0029" y="219.7832">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40.4551" x="488.8926" y="219.7832">review</text></g><!--entity ClaudeCode--><g class="entity" data-qualified-name="ClaudeCode" data-source-line="197" id="ent0003"><rect fill="#1168BD" height="92.9531" style="stroke:#3C7FC0;stroke-width:0.5;" width="163.9717" x="7" y="122.1875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="53.3438" x="40.0913" y="148.7969">Claude</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="4.4453" x="93.4351" y="148.7969">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="40" x="97.8804" y="148.7969">Code</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="87.041" y="166.8457">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.1445" x="17" y="184.4551">Anthropic</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="76.1445" y="184.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="21.7861" x="80.0342" y="184.4551">CLI</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="101.8203" y="184.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35.0342" x="105.71" y="184.4551">agent</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="140.7441" y="184.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="16.3379" x="144.6338" y="184.4551">for</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.9102" x="24" y="202.0645">software</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="76.9102" y="202.0645">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73.1719" x="80.7998" y="202.0645">engineering</text></g><!--entity Structurizr--><g class="entity" data-qualified-name="Structurizr" data-source-line="197" id="ent0004"><rect fill="#1168BD" height="92.9531" style="stroke:#3C7FC0;stroke-width:0.5;" width="201.2959" x="726" y="58.1875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="80.8984" x="786.1987" y="84.7969">Structurizr</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="824.7031" y="102.8457">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="47.4619" x="736" y="120.4551">Exports</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="783.4619" y="120.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27.2344" x="787.3516" y="120.4551">DSL</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="814.5859" y="120.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6758" x="818.4756" y="120.4551">to</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="830.1514" y="120.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.4688" x="834.041" y="120.4551">PlantUML</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="895.5098" y="120.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="17.8965" x="899.3994" y="120.4551">C4</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="39.6758" x="806.8101" y="138.0645">format</text></g><!--entity PlantUML--><g class="entity" data-qualified-name="PlantUML" data-source-line="197" id="ent0005"><rect fill="#1168BD" height="92.9531" style="stroke:#3C7FC0;stroke-width:0.5;" width="215.3096" x="719" y="186.1875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="73.7734" x="789.7681" y="212.7969">PlantUML</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="824.71" y="230.8457">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.917" x="729" y="248.4551">Renders</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="781.917" y="248.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.4688" x="785.8066" y="248.4551">PlantUML</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="847.2754" y="248.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5791" x="851.165" y="248.4551">diagrams</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="908.7441" y="248.4551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6758" x="912.6338" y="248.4551">to</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="29.5654" x="811.8721" y="266.0645">SVG</text></g><!--link ClaudeCode to madscientistskills--><g class="link" data-entity-1="ent0003" data-entity-2="ent0002" data-link-type="dependency" data-source-line="1779" id="lnk6"><path d="M171.01,168.6875 C223.03,168.6875 283.01,168.6875 338.73,168.6875" fill="none" id="ClaudeCode-to-madscientistskills" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="346.73,168.6875,338.73,165.6875,338.73,171.6875,346.73,168.6875" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="35.3379" x="202" y="150.1445">Loads</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="237.3379" y="150.1445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="21.334" x="240.6719" y="150.1445">and</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="262.0059" y="150.1445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="51.3691" x="265.3398" y="150.1445">executes</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="36.6914" x="218.6729" y="165.2383">[Plugin</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="255.3643" y="165.2383">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="41.3379" x="258.6982" y="165.2383">system]</text></g><!--link madscientistskills to Structurizr--><g class="link" data-entity-1="ent0002" data-entity-2="ent0004" data-link-type="dependency" data-source-line="1779" id="lnk7"><path d="M553.33,151.1975 C607.04,142.0175 664.6944,132.1653 717.9944,123.0553" fill="none" id="madscientistskills-to-Structurizr" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="725.88,121.7075,717.4889,120.0982,718.4998,126.0124,725.88,121.7075" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="44.6777" x="589.9941" y="111.1445">Exports</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="634.6719" y="111.1445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="24" x="638.0059" y="111.1445">DSL</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="662.0059" y="111.1445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="16.6816" x="665.3398" y="111.1445">via</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="78.6738" x="584" y="126.2383">[structurizr.war</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="662.6738" y="126.2383">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="22.0078" x="666.0078" y="126.2383">CLI]</text></g><!--link madscientistskills to PlantUML--><g class="link" data-entity-1="ent0002" data-entity-2="ent0005" data-link-type="dependency" data-source-line="1779" id="lnk8"><path d="M553.33,186.1775 C604.66,194.9475 658.9042,204.2206 710.8342,213.0906" fill="none" id="madscientistskills-to-PlantUML" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="718.72,214.4375,711.3393,210.1334,710.3291,216.0477,718.72,214.4375" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="48.0176" x="584.5" y="174.1445">Renders</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="632.5176" y="174.1445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="32.0156" x="635.8516" y="174.1445">SVGs</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="667.8672" y="174.1445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="16.6816" x="671.2012" y="174.1445">via</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="65.3613" x="590.8398" y="189.2383">[plantuml.jar</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="656.2012" y="189.2383">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="22.0078" x="659.5352" y="189.2383">CLI]</text></g><g class="legend" data-source-line="1576"><rect fill="none" height="17.6094" style="stroke:none;stroke-width:1;" width="77.7861" x="831.5234" y="303.1406"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="49.7793" x="831.5234" y="317.6738">Legend</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="885.1924" y="317.6738">&#160;</text><rect fill="#1168BD" height="17.6094" style="stroke:none;stroke-width:1;" width="77.7861" x="831.5234" y="320.75"/><text fill="#3C7FC0" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="14" x="835.4131" y="335.2832">&#9647;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="849.4131" y="335.2832">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44.3379" x="857.1924" y="335.2832">system</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="905.4199" y="335.2832">&#160;</text><line style="stroke:none;stroke-width:1;" x1="831.5234" x2="909.3096" y1="303.1406" y2="303.1406"/><line style="stroke:none;stroke-width:1;" x1="831.5234" x2="909.3096" y1="320.75" y2="320.75"/><line style="stroke:none;stroke-width:1;" x1="831.5234" x2="909.3096" y1="338.3594" y2="338.3594"/><line style="stroke:none;stroke-width:1;" x1="831.5234" x2="831.5234" y1="303.1406" y2="338.3594"/><line style="stroke:none;stroke-width:1;" x1="909.3096" x2="909.3096" y1="303.1406" y2="338.3594"/></g></g></svg>
+    </div>
+  </div>
+
+  <div id="containers" class="tab-content">
+    <div class="svg-container">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="DESCRIPTION" height="643px" preserveAspectRatio="none" style="width:1379px;height:643px;background:#FFFFFF;" version="1.1" viewBox="0 0 1379 643" width="1379px" zoomAndPan="magnify"><defs/><g><!--cluster madscientistskills_boundary--><g class="cluster" data-qualified-name="madscientistskills_boundary" data-source-line="1666" id="ent0005"><rect fill="none" height="375" style="stroke:#444444;stroke-width:1;stroke-dasharray:7,7;" width="602" x="404" y="58.1875"/><text fill="#444444" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="148.5" x="630.75" y="76.7969">mad-scientist-skills</text><text fill="#444444" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="49.3535" x="680.3232" y="92.7695">[system]</text></g><!--entity madscientistskills.c4Skill--><g class="entity" data-qualified-name="madscientistskills_boundary.madscientistskills.c4Skill" data-source-line="71" id="ent0006"><rect fill="#438DD5" height="140.75" style="stroke:#3C7FC0;stroke-width:0.5;" width="186.5029" x="803" y="194.6875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="17.7969" x="868.6772" y="221.2969">c4</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="4.4453" x="886.4741" y="221.2969">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="32.9063" x="890.9194" y="221.2969">Skill</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="59.3613" x="814.8765" y="237.2695">[SKILL.md,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="874.2378" y="237.2695">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="90.0469" x="877.5718" y="237.2695">c4_assemble.py,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="967.6187" y="237.2695">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="6.6738" x="970.9526" y="237.2695">5</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="55.3594" x="868.5718" y="252.3633">templates]</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="894.3066" y="269.5332">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="65.3721" x="818.8242" y="287.1426">Generates</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="884.1963" y="287.1426">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="63.8066" x="888.0859" y="287.1426">interactive</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="951.8926" y="287.1426">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="17.8965" x="955.7822" y="287.1426">C4</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73.1445" x="813" y="304.752">architecture</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="886.1445" y="304.752">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5791" x="890.0342" y="304.752">diagrams</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="947.6133" y="304.752">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="28" x="951.5029" y="304.752">from</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="63.7861" x="848.7964" y="322.3613">Structurizr</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="912.5825" y="322.3613">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27.2344" x="916.4722" y="322.3613">DSL</text></g><!--entity madscientistskills.finalreviewSkill--><g class="entity" data-qualified-name="madscientistskills_boundary.madscientistskills.finalreviewSkill" data-source-line="71" id="ent0007"><rect fill="#438DD5" height="143.2656" style="stroke:#3C7FC0;stroke-width:0.5;" width="194.2959" x="430.5" y="112.6875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="88.0313" x="464.9565" y="139.2969">final-review</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="4.4453" x="552.9878" y="139.2969">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="32.9063" x="557.4331" y="139.2969">Skill</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="59.3613" x="497.9673" y="155.2695">[SKILL.md]</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="525.7031" y="172.4395">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="71.5586" x="440.5" y="190.0488">Pre-commit</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="512.0586" y="190.0488">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40.4688" x="515.9482" y="190.0488">quality</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="556.417" y="190.0488">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27.248" x="560.3066" y="190.0488">gate</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="587.5547" y="190.0488">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="23.3516" x="591.4443" y="190.0488">that</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="47.4551" x="452.5518" y="207.6582">reviews</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="500.0068" y="207.6582">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="34.248" x="503.8965" y="207.6582">code,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="538.1445" y="207.6582">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="33.4619" x="542.0342" y="207.6582">docs,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="575.4961" y="207.6582">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="23.3584" x="579.3857" y="207.6582">and</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="62.2686" x="457.9966" y="225.2676">generates</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="520.2651" y="225.2676">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73.1445" x="524.1548" y="225.2676">architecture</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5791" x="498.8584" y="242.877">diagrams</text></g><!--entity madscientistskills.securityauditSkill--><g class="entity" data-qualified-name="madscientistskills_boundary.madscientistskills.securityauditSkill" data-source-line="71" id="ent0008"><rect fill="#438DD5" height="125.6563" style="stroke:#3C7FC0;stroke-width:0.5;" width="214.5508" x="420" y="291.1875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="104.9141" x="456.1426" y="317.7969">security-audit</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="4.4453" x="561.0566" y="317.7969">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="32.9063" x="565.502" y="317.7969">Skill</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="59.3613" x="463.2441" y="333.7695">[SKILL.md,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="522.6055" y="333.7695">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="6.6738" x="525.9395" y="333.7695">6</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="532.6133" y="333.7695">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="55.3594" x="535.9473" y="333.7695">templates]</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="525.3306" y="350.9395">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50.5586" x="430.4067" y="368.5488">Two-tier</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="480.9653" y="368.5488">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="48.2344" x="484.855" y="368.5488">security</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="533.0894" y="368.5488">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="30.3584" x="536.979" y="368.5488">audit</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="567.3374" y="368.5488">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.917" x="571.2271" y="368.5488">covering</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55.2275" x="445.9756" y="386.1582">STRIDE,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="501.2031" y="386.1582">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.1172" x="505.0928" y="386.1582">OWASP</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="557.21" y="386.1582">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="24.124" x="561.0996" y="386.1582">Top</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="585.2236" y="386.1582">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="19.4619" x="589.1133" y="386.1582">10,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85.5859" x="430" y="403.7676">infrastructure,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="515.5859" y="403.7676">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="23.3584" x="519.4756" y="403.7676">and</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="542.834" y="403.7676">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40.4688" x="546.7236" y="403.7676">supply</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="587.1924" y="403.7676">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="33.4688" x="591.082" y="403.7676">chain</text></g><!--entity ClaudeCode--><g class="entity" data-qualified-name="ClaudeCode" data-source-line="197" id="ent0002"><rect fill="#1168BD" height="92.9531" style="stroke:#3C7FC0;stroke-width:0.5;" width="163.9717" x="7" y="307.6875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="53.3438" x="40.0913" y="334.2969">Claude</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="4.4453" x="93.4351" y="334.2969">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="40" x="97.8804" y="334.2969">Code</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="87.041" y="352.3457">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.1445" x="17" y="369.9551">Anthropic</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="76.1445" y="369.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="21.7861" x="80.0342" y="369.9551">CLI</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="101.8203" y="369.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35.0342" x="105.71" y="369.9551">agent</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="140.7441" y="369.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="16.3379" x="144.6338" y="369.9551">for</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.9102" x="24" y="387.5645">software</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="76.9102" y="387.5645">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73.1719" x="80.7998" y="387.5645">engineering</text></g><!--entity Structurizr--><g class="entity" data-qualified-name="Structurizr" data-source-line="197" id="ent0003"><rect fill="#1168BD" height="92.9531" style="stroke:#3C7FC0;stroke-width:0.5;" width="201.2959" x="1165" y="154.6875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="80.8984" x="1225.1987" y="181.2969">Structurizr</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1263.7031" y="199.3457">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="47.4619" x="1175" y="216.9551">Exports</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1222.4619" y="216.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27.2344" x="1226.3516" y="216.9551">DSL</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1253.5859" y="216.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6758" x="1257.4756" y="216.9551">to</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1269.1514" y="216.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.4688" x="1273.041" y="216.9551">PlantUML</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1334.5098" y="216.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="17.8965" x="1338.3994" y="216.9551">C4</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="39.6758" x="1245.8101" y="234.5645">format</text></g><!--entity PlantUML--><g class="entity" data-qualified-name="PlantUML" data-source-line="197" id="ent0004"><rect fill="#1168BD" height="92.9531" style="stroke:#3C7FC0;stroke-width:0.5;" width="215.3096" x="1158" y="282.6875"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="73.7734" x="1228.7681" y="309.2969">PlantUML</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1263.71" y="327.3457">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.917" x="1168" y="344.9551">Renders</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1220.917" y="344.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.4688" x="1224.8066" y="344.9551">PlantUML</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1286.2754" y="344.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5791" x="1290.165" y="344.9551">diagrams</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1347.7441" y="344.9551">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6758" x="1351.6338" y="344.9551">to</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="29.5654" x="1250.8721" y="362.5645">SVG</text></g><!--link ClaudeCode to madscientistskills.c4Skill--><g class="link" data-entity-1="ent0002" data-entity-2="ent0006" data-link-type="dependency" data-source-line="1779" id="lnk9"><path d="M171.1,397.1075 C279.07,448.3675 475,520.7375 635,466.1875 C710.69,440.3775 775.757,388.2465 824.387,341.2565" fill="none" id="ClaudeCode-to-madscientistskills.c4Skill" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="830.14,335.6975,822.3023,339.0991,826.4716,343.4139,830.14,335.6975" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="44.6895" x="505.501" y="447.6445">Invokes</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="126.6914" x="464.5" y="462.7383">[/mad-scientist-skills:c4]</text></g><!--link ClaudeCode to madscientistskills.finalreviewSkill--><g class="link" data-entity-1="ent0002" data-entity-2="ent0007" data-link-type="dependency" data-source-line="1779" id="lnk10"><path d="M171.08,322.6075 C244.43,294.0375 345.0854,254.8407 422.7854,224.5807" fill="none" id="ClaudeCode-to-madscientistskills.finalreviewSkill" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="430.24,221.6775,421.6967,221.7852,423.8741,227.3762,430.24,221.6775" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="44.6895" x="272.5068" y="220.6445">Invokes</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="174.7031" x="207.5" y="235.7383">[/mad-scientist-skills:final-review]</text></g><!--link ClaudeCode to madscientistskills.securityauditSkill--><g class="link" data-entity-1="ent0002" data-entity-2="ent0008" data-link-type="dependency" data-source-line="1779" id="lnk11"><path d="M171.08,354.1875 C241.22,354.1875 335.15,354.1875 411.89,354.1875" fill="none" id="ClaudeCode-to-madscientistskills.securityauditSkill" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="419.89,354.1875,411.89,351.1875,411.89,357.1875,419.89,354.1875" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="44.6895" x="272.3447" y="335.6445">Invokes</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="185.3789" x="202" y="350.7383">[/mad-scientist-skills:security-audit]</text></g><!--link madscientistskills.finalreviewSkill to madscientistskills.c4Skill--><g class="link" data-entity-1="ent0007" data-entity-2="ent0006" data-link-type="dependency" data-source-line="1779" id="lnk12"><path d="M624.92,205.4675 C679.93,217.6075 740.7081,231.023 795.0681,243.023" fill="none" id="madscientistskills.finalreviewSkill-to-madscientistskills.c4Skill" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="802.88,244.7475,795.7148,240.0935,794.4214,245.9525,802.88,244.7475" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="56.6953" x="666" y="181.6445">Delegates</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="722.6953" y="181.6445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="46.6816" x="726.0293" y="181.6445">diagram</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61.3418" x="681.3545" y="196.7383">generation</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="742.6963" y="196.7383">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="11.3262" x="746.0303" y="196.7383">to</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="25.3359" x="676.3359" y="211.832">[Skill</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="701.6719" y="211.832">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="57.3691" x="705.0059" y="211.832">invocation]</text></g><!--link madscientistskills.c4Skill to Structurizr--><g class="link" data-entity-1="ent0006" data-entity-2="ent0003" data-link-type="dependency" data-source-line="1779" id="lnk13"><path d="M990.11,249.0375 C1043.41,239.7375 1102.5088,229.4311 1156.9588,219.9411" fill="none" id="madscientistskills.c4Skill-to-Structurizr" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="1164.84,218.5675,1156.4437,216.9857,1157.4739,222.8965,1164.84,218.5675" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="44.6777" x="1028.9941" y="207.6445">Exports</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="1073.6719" y="207.6445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="24" x="1077.0059" y="207.6445">DSL</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="1101.0059" y="207.6445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="16.6816" x="1104.3398" y="207.6445">via</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="78.6738" x="1023" y="222.7383">[structurizr.war</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="1101.6738" y="222.7383">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="22.0078" x="1105.0078" y="222.7383">CLI]</text></g><!--link madscientistskills.c4Skill to PlantUML--><g class="link" data-entity-1="ent0006" data-entity-2="ent0004" data-link-type="dependency" data-source-line="1779" id="lnk14"><path d="M990.11,281.3375 C1041.18,290.2375 1096.9291,299.9625 1150.0591,309.2325" fill="none" id="madscientistskills.c4Skill-to-PlantUML" style="stroke:#666666;stroke-width:1;"/><polygon fill="#666666" points="1157.94,310.6075,1150.5747,306.2771,1149.5434,312.1878,1157.94,310.6075" style="stroke:#666666;stroke-width:1;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="48.0176" x="1023.5" y="269.6445">Renders</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="1071.5176" y="269.6445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="32.0156" x="1074.8516" y="269.6445">SVGs</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="3.334" x="1106.8672" y="269.6445">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="16.6816" x="1110.2012" y="269.6445">via</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="65.3613" x="1029.8398" y="284.7383">[plantuml.jar</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="3.334" x="1095.2012" y="284.7383">&#160;</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing" textLength="22.0078" x="1098.5352" y="284.7383">CLI]</text></g><g class="legend" data-source-line="1576"><rect fill="none" height="17.6094" style="stroke:none;stroke-width:1;" width="140.0547" x="1208.2549" y="545.7375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="49.7793" x="1208.2549" y="560.2707">Legend</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1261.9238" y="560.2707">&#160;</text><rect fill="#1168BD" height="17.6094" style="stroke:none;stroke-width:1;" width="140.0547" x="1208.2549" y="563.3469"/><text fill="#3C7FC0" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="14" x="1212.1445" y="577.8801">&#9647;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1226.1445" y="577.8801">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44.3379" x="1233.9238" y="577.8801">system</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1282.1514" y="577.8801">&#160;</text><rect fill="#438DD5" height="17.6094" style="stroke:none;stroke-width:1;" width="140.0547" x="1208.2549" y="580.9563"/><text fill="#3C7FC0" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="14" x="1212.1445" y="595.4895">&#9647;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1226.1445" y="595.4895">&#160;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5928" x="1233.9238" y="595.4895">container</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1295.4063" y="595.4895">&#160;</text><rect fill="none" height="17.6094" style="stroke:none;stroke-width:1;" width="140.0547" x="1208.2549" y="598.5656"/><text fill="#444444" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="14" x="1212.1445" y="613.0988">&#9647;</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1226.1445" y="613.0988">&#160;</text><text fill="#444444" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="106.6064" x="1233.9238" y="613.0988">system boundary</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="3.8896" x="1344.4199" y="613.0988">&#160;</text><line style="stroke:none;stroke-width:1;" x1="1208.2549" x2="1348.3096" y1="545.7375" y2="545.7375"/><line style="stroke:none;stroke-width:1;" x1="1208.2549" x2="1348.3096" y1="563.3469" y2="563.3469"/><line style="stroke:none;stroke-width:1;" x1="1208.2549" x2="1348.3096" y1="580.9563" y2="580.9563"/><line style="stroke:none;stroke-width:1;" x1="1208.2549" x2="1348.3096" y1="598.5656" y2="598.5656"/><line style="stroke:none;stroke-width:1;" x1="1208.2549" x2="1348.3096" y1="616.175" y2="616.175"/><line style="stroke:none;stroke-width:1;" x1="1208.2549" x2="1208.2549" y1="545.7375" y2="616.175"/><line style="stroke:none;stroke-width:1;" x1="1348.3096" x2="1348.3096" y1="545.7375" y2="616.175"/></g></g></svg>
+    </div>
+  </div>
+
+  <div id="dsl" class="tab-content">
+    <div class="dsl-panel">
+      <button class="copy-btn" id="copyBtn" onclick="copyDSL()">Copy</button>
+      <pre><code id="dsl-source">workspace &quot;mad-scientist-skills&quot; &quot;Claude Code plugin providing C4 architecture diagrams, security auditing, and pre-commit quality gates&quot; {
+
+    model {
+        developer = person &quot;Developer&quot; &quot;Uses Claude Code for software engineering tasks&quot;
+
+        plugin = softwareSystem &quot;mad-scientist-skills&quot; &quot;Claude Code plugin with skills for architecture visualization, security auditing, and pre-commit quality review&quot; {
+            c4Skill = container &quot;c4 Skill&quot; &quot;Generates interactive C4 architecture diagrams from Structurizr DSL&quot; &quot;SKILL.md, c4_assemble.py, 5 templates&quot;
+            finalReviewSkill = container &quot;final-review Skill&quot; &quot;Pre-commit quality gate that reviews code, docs, and generates architecture diagrams&quot; &quot;SKILL.md&quot;
+            securityAuditSkill = container &quot;security-audit Skill&quot; &quot;Two-tier security audit covering STRIDE, OWASP Top 10, infrastructure, and supply chain&quot; &quot;SKILL.md, 6 templates&quot;
+        }
+
+        claudeCode = softwareSystem &quot;Claude Code&quot; &quot;Anthropic CLI agent for software engineering&quot; &quot;External&quot;
+        structurizr = softwareSystem &quot;Structurizr&quot; &quot;Exports DSL to PlantUML C4 format&quot; &quot;External&quot;
+        plantuml = softwareSystem &quot;PlantUML&quot; &quot;Renders PlantUML diagrams to SVG&quot; &quot;External&quot;
+
+        developer -&gt; claudeCode &quot;Invokes skills via&quot; &quot;/mad-scientist-skills:&lt;skill&gt;&quot;
+        claudeCode -&gt; plugin &quot;Loads and executes&quot; &quot;Plugin system&quot;
+        claudeCode -&gt; c4Skill &quot;Invokes&quot; &quot;/mad-scientist-skills:c4&quot;
+        claudeCode -&gt; finalReviewSkill &quot;Invokes&quot; &quot;/mad-scientist-skills:final-review&quot;
+        claudeCode -&gt; securityAuditSkill &quot;Invokes&quot; &quot;/mad-scientist-skills:security-audit&quot;
+        finalReviewSkill -&gt; c4Skill &quot;Delegates diagram generation to&quot; &quot;Skill invocation&quot;
+        c4Skill -&gt; structurizr &quot;Exports DSL via&quot; &quot;structurizr.war CLI&quot;
+        c4Skill -&gt; plantuml &quot;Renders SVGs via&quot; &quot;plantuml.jar CLI&quot;
+    }
+
+    views {
+        systemContext plugin &quot;SystemContext&quot; {
+            include *
+            autoLayout
+        }
+
+        container plugin &quot;Containers&quot; {
+            include *
+            autoLayout
+        }
+
+        styles {
+            element &quot;Person&quot; {
+                shape Person
+                background #08427B
+                color #ffffff
+            }
+            element &quot;Software System&quot; {
+                background #1168BD
+                color #ffffff
+            }
+            element &quot;External&quot; {
+                background #999999
+                color #ffffff
+            }
+            element &quot;Container&quot; {
+                background #438DD5
+                color #ffffff
+            }
+            element &quot;Database&quot; {
+                shape Cylinder
+            }
+            element &quot;Component&quot; {
+                background #85BBF0
+                color #000000
+            }
+        }
+    }
+
+}
+</code></pre>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+      });
+    });
+
+    function copyDSL() {
+      var dslText = document.getElementById('dsl-source').textContent;
+      var btn = document.getElementById('copyBtn');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(dslText).then(function() {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(function() {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      } else {
+        var textarea = document.createElement('textarea');
+        textarea.value = dslText;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      }
+    }
+  </script>
+</body>
+</html>

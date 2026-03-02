@@ -1,0 +1,65 @@
+workspace "mad-scientist-skills" "Claude Code plugin providing C4 architecture diagrams, security auditing, and pre-commit quality gates" {
+
+    model {
+        developer = person "Developer" "Uses Claude Code for software engineering tasks"
+
+        plugin = softwareSystem "mad-scientist-skills" "Claude Code plugin with skills for architecture visualization, security auditing, and pre-commit quality review" {
+            c4Skill = container "c4 Skill" "Generates interactive C4 architecture diagrams from Structurizr DSL" "SKILL.md, c4_assemble.py, 5 templates"
+            finalReviewSkill = container "final-review Skill" "Pre-commit quality gate that reviews code, docs, and generates architecture diagrams" "SKILL.md"
+            securityAuditSkill = container "security-audit Skill" "Two-tier security audit covering STRIDE, OWASP Top 10, infrastructure, and supply chain" "SKILL.md, 6 templates"
+        }
+
+        claudeCode = softwareSystem "Claude Code" "Anthropic CLI agent for software engineering" "External"
+        structurizr = softwareSystem "Structurizr" "Exports DSL to PlantUML C4 format" "External"
+        plantuml = softwareSystem "PlantUML" "Renders PlantUML diagrams to SVG" "External"
+
+        developer -> claudeCode "Invokes skills via" "/mad-scientist-skills:<skill>"
+        claudeCode -> plugin "Loads and executes" "Plugin system"
+        claudeCode -> c4Skill "Invokes" "/mad-scientist-skills:c4"
+        claudeCode -> finalReviewSkill "Invokes" "/mad-scientist-skills:final-review"
+        claudeCode -> securityAuditSkill "Invokes" "/mad-scientist-skills:security-audit"
+        finalReviewSkill -> c4Skill "Delegates diagram generation to" "Skill invocation"
+        c4Skill -> structurizr "Exports DSL via" "structurizr.war CLI"
+        c4Skill -> plantuml "Renders SVGs via" "plantuml.jar CLI"
+    }
+
+    views {
+        systemContext plugin "SystemContext" {
+            include *
+            autoLayout
+        }
+
+        container plugin "Containers" {
+            include *
+            autoLayout
+        }
+
+        styles {
+            element "Person" {
+                shape Person
+                background #08427B
+                color #ffffff
+            }
+            element "Software System" {
+                background #1168BD
+                color #ffffff
+            }
+            element "External" {
+                background #999999
+                color #ffffff
+            }
+            element "Container" {
+                background #438DD5
+                color #ffffff
+            }
+            element "Database" {
+                shape Cylinder
+            }
+            element "Component" {
+                background #85BBF0
+                color #000000
+            }
+        }
+    }
+
+}
