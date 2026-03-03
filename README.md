@@ -17,7 +17,7 @@ A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/cla
 Add the marketplace (one-time):
 
 ```
-/plugin marketplace add karstenskyt/mad-scientist-skills
+/plugin marketplace add karsten-s-nielsen/mad-scientist-skills
 ```
 
 Install the plugin:
