@@ -1,11 +1,12 @@
-workspace "mad-scientist-skills" "Claude Code plugin providing C4 architecture diagrams, security auditing, and pre-commit quality gates" {
+workspace "mad-scientist-skills" "Claude Code plugin providing C4 architecture diagrams, security auditing, observability auditing, and pre-commit quality gates" {
 
     model {
         developer = person "Developer" "Uses Claude Code for software engineering tasks"
 
-        plugin = softwareSystem "mad-scientist-skills" "Claude Code plugin with skills for architecture visualization, security auditing, and pre-commit quality review" {
+        plugin = softwareSystem "mad-scientist-skills" "Claude Code plugin with skills for architecture visualization, security auditing, observability auditing, and pre-commit quality review" {
             c4Skill = container "c4 Skill" "Generates interactive C4 architecture diagrams from Structurizr DSL" "SKILL.md, c4_assemble.py, 5 templates"
             finalReviewSkill = container "final-review Skill" "Pre-commit quality gate that reviews code, docs, and generates architecture diagrams" "SKILL.md"
+            observabilityAuditSkill = container "observability-audit Skill" "Two-tier observability audit covering instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, and SLIs/SLOs (beta)" "SKILL.md, 7 templates"
             securityAuditSkill = container "security-audit Skill" "Two-tier security audit covering STRIDE, OWASP Top 10, infrastructure, and supply chain" "SKILL.md, 6 templates"
         }
 
@@ -17,6 +18,7 @@ workspace "mad-scientist-skills" "Claude Code plugin providing C4 architecture d
         claudeCode -> plugin "Loads and executes" "Plugin system"
         claudeCode -> c4Skill "Invokes" "/mad-scientist-skills:c4"
         claudeCode -> finalReviewSkill "Invokes" "/mad-scientist-skills:final-review"
+        claudeCode -> observabilityAuditSkill "Invokes" "/mad-scientist-skills:observability-audit"
         claudeCode -> securityAuditSkill "Invokes" "/mad-scientist-skills:security-audit"
         finalReviewSkill -> c4Skill "Delegates diagram generation to" "Skill invocation"
         c4Skill -> structurizr "Exports DSL via" "structurizr.war CLI"
