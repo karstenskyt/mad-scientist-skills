@@ -859,7 +859,7 @@ For SSDs, effective_spindle_count is typically 1, so: `connections = (cores * 2)
 from sqlalchemy import create_engine
 
 engine = create_engine(
-    "postgresql://user:pass@host/db",
+    "postgresql://user:pass@host/db",  # pragma: allowlist secret
     pool_size=10,           # maintained idle connections
     max_overflow=20,        # additional connections under load (total max = 30)
     pool_timeout=30,        # seconds to wait for a connection before error

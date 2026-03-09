@@ -421,7 +421,7 @@ This is the *total* across all application instances. If you have 3 app servers,
 from sqlalchemy import create_engine
 
 engine = create_engine(
-    "postgresql://user:pass@host/db",
+    "postgresql://user:pass@host/db",  # pragma: allowlist secret
     pool_size=5,            # Maintained idle connections
     max_overflow=10,        # Extra connections allowed beyond pool_size
     pool_timeout=30,        # Seconds to wait for a connection before error
@@ -476,7 +476,7 @@ const pool = new Pool({
     host: "localhost",
     database: "mydb",
     user: "user",
-    password: "pass",
+    password: "pass",  // pragma: allowlist secret
     max: 10,                     // Maximum connections in pool
     idleTimeoutMillis: 30000,    // Close idle connections after 30s
     connectionTimeoutMillis: 5000, // Error if connection not acquired in 5s

@@ -145,7 +145,7 @@ class APIUser(HttpUser):
         """Run once per user on startup — login, setup."""
         response = self.client.post("/api/auth/login", json={
             "username": "loadtest",
-            "password": "test-password",
+            "password": "test-password",  # pragma: allowlist secret
         })
         self.token = response.json().get("token", "")
 
