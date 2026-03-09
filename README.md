@@ -2,7 +2,7 @@
 
 ![Mad Scientist Skills](assets/mad-scientist.jpg)
 
-A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for software architecture, security auditing, observability auditing, and pre-commit quality gates.
+A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for software architecture, security auditing, observability auditing, optimization auditing, and pre-commit quality gates.
 
 ## Skills
 
@@ -11,6 +11,7 @@ A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/cla
 | **c4** | C4 architecture diagrams using Structurizr DSL — self-contained HTML with embedded SVGs | `/mad-scientist-skills:c4` |
 | **final-review** | Pre-commit quality gate — code review, documentation check, and architecture diagram generation | `/mad-scientist-skills:final-review` |
 | **observability-audit** | Two-tier observability audit (Standard/Enterprise) — instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, SLIs/SLOs (beta) | `/mad-scientist-skills:observability-audit` |
+| **optimization-audit** | Single-tier optimization audit — algorithm efficiency, database queries, caching, concurrency, pipelines, cloud cost, profiling (beta) | `/mad-scientist-skills:optimization-audit` |
 | **security-audit** | Two-tier security audit (Standard/Enterprise) — STRIDE, OWASP Top 10, infrastructure hardening, supply chain | `/mad-scientist-skills:security-audit` |
 
 ## Installation
@@ -139,6 +140,53 @@ Ask naturally ("Audit observability for this project", "Design telemetry strateg
 
 ```
 /mad-scientist-skills:observability-audit
+```
+
+</details>
+
+<details>
+<summary><strong>optimization-audit</strong> — Single-Tier Optimization Audit (beta)</summary>
+
+Two-mode, single-tier optimization analysis: **planning** (before code) and **audit** (existing code/infra). Single tier because optimization tools are overwhelmingly free/open-source (profilers, EXPLAIN, load testers, linters).
+
+### Coverage
+
+| Phase | Area | Planning | Audit |
+|-------|------|:--------:|:-----:|
+| 0 | Anti-pattern scanning (algorithm, memory, concurrency, database, logging) | | x |
+| 1 | Performance surface discovery | x | x |
+| 2 | Algorithm & data structure efficiency | | x |
+| 3 | Memory management | | x |
+| 4 | Concurrency & parallelism | | x |
+| 5 | Database & query optimization | x | x |
+| 6 | Caching strategy | x | x |
+| 7 | Serialization & network | | x |
+| 8 | Frontend & API optimization (conditional) | | x |
+| 9 | Data pipeline efficiency (conditional) | x | x |
+| 10 | Container & startup optimization (conditional) | | x |
+| 11 | Cloud cost & right-sizing (conditional) | x | x |
+| 12 | Profiling & benchmarking posture | x | x |
+| 13 | Findings report | x | x |
+
+### Templates
+
+| Template | Purpose |
+|----------|---------|
+| `algorithm-complexity.md` | Big-O analysis, data structure selection, per-language profiling tools |
+| `database-optimization.md` | N+1 detection, indexing strategies, query plans, connection pooling |
+| `caching-strategies.md` | Cache architecture, invalidation patterns, stampede protection, HTTP caching |
+| `concurrency-patterns.md` | Thread pool sizing, async/await correctness, lock contention, backpressure |
+| `frontend-performance.md` | Core Web Vitals, bundle optimization, image optimization, API responses |
+| `pipeline-efficiency.md` | Batch/streaming trade-offs, incremental processing, Spark/dbt tuning |
+| `profiling-benchmarking.md` | Load testing tools, micro-benchmarking, regression detection in CI |
+| `cloud-cost-optimization.md` | Right-sizing, auto-scaling, storage tiering, FinOps practices |
+
+### Usage
+
+Ask naturally ("Optimization audit this project", "Find bottlenecks", "Performance review") or invoke directly:
+
+```
+/mad-scientist-skills:optimization-audit
 ```
 
 </details>
