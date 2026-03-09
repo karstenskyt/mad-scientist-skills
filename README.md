@@ -252,6 +252,14 @@ plugins/mad-scientist-skills/skills/
 
 The skill is available via `/mad-scientist-skills:my-new-skill` on any machine with the plugin installed.
 
+## Giving Back
+
+> *"En Del Af Noget Større"* (A Part of Something Bigger)
+
+This project is, and always will be, free and open source. If you find value in this work, I encourage you to consider a donation to **Scottish Football for Rwanda** rather than any personal gift. I am volunteering as a goalkeeper coach in Rwanda in June 2026 — 100% of donations go directly to local kids, coaches, and community organizations.
+
+[![Donate](https://img.shields.io/badge/Donate-JustGiving-E42C64?style=flat-square)](https://www.justgiving.com/page/gk-coach-karsten-for-rwanda)
+
 ## License
 
 [MIT](LICENSE)
