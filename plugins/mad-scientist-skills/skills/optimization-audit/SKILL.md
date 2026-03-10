@@ -1,9 +1,9 @@
 ---
 name: optimization-audit
-description: Comprehensive optimization audit with two modes (beta). Planning mode designs performance strategy, capacity planning, and scaling architecture. Audit mode scans code and infrastructure for performance anti-patterns, inefficient algorithms, N+1 queries, missing caching, concurrency issues, and resource waste. Single tier — optimization tools are overwhelmingly free/open-source. Use when asked to "optimization audit", "performance review", "find bottlenecks", "optimize this", "check efficiency", or "resource audit".
+description: Comprehensive optimization audit with two modes and a single tier. Planning mode designs performance strategy, capacity planning, and scaling architecture. Audit mode scans code and infrastructure for performance anti-patterns, inefficient algorithms, N+1 queries, missing caching, concurrency issues, and resource waste. Single tier — optimization tools are overwhelmingly free/open-source. Use when asked to "optimization audit", "performance review", "find bottlenecks", "optimize this", "check efficiency", or "resource audit".
 ---
 
-# Optimization Audit (beta)
+# Optimization Audit
 
 A comprehensive optimization skill with two modes and a single tier:
 
@@ -52,6 +52,8 @@ Every finding must be assigned a severity:
 ## Audit process
 
 Execute all applicable phases in order. Skip phases marked for a mode you are not running. Skip conditional phases (8, 9, 10, 11) when their preconditions are not met. Do NOT skip applicable phases. Do NOT claim completion without evidence.
+
+**Phase order:** 0 → 0.5 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13
 
 ---
 
@@ -130,6 +132,20 @@ Scan all source files for these patterns. Each match requires manual review — 
 | Go | `sql\.Open\(` inside handler instead of at startup | New pool per request | Critical |
 | Java | `DriverManager\.getConnection\(` without connection pool | No pooling | Critical |
 
+#### HTTP N+1 anti-patterns
+
+| Language | Pattern | Issue | Severity |
+|----------|---------|-------|----------|
+| Python | `requests\.(get\|post\|put\|delete)\(` inside a `for\|while` loop | N+1 HTTP API calls — sequential per-item requests instead of batch | High |
+| Python | `fetch_url\(` or custom HTTP wrapper inside a `for\|while` loop | N+1 via abstracted HTTP calls | High |
+| Python | `httpx\.(get\|post)\(` inside a `for\|while` loop (not async) | N+1 via httpx sync client | High |
+| Python | `session\.(get\|post)\(` inside a `for\|while` loop without concurrency | Sequential HTTP session calls | High |
+| JS/TS | `axios\.(get\|post)\(` or `fetch\(` inside a `for\|forEach\|map` loop | N+1 API calls; should batch or parallelize | High |
+| Go | `http\.Get\(` or `client\.Do\(` inside a `for` loop | Sequential HTTP requests | High |
+| Any | Per-item API calls where batch endpoint exists | N+1 over network instead of database | High |
+
+This is the network equivalent of N+1 database queries. Common in data ingestion pipelines that fetch per-record or per-match data from REST APIs. The fix is typically batch endpoints, concurrent requests (`asyncio`/`httpx.AsyncClient`/goroutine fan-out), or Scatter-Gather patterns.
+
 #### Logging overhead anti-patterns
 
 | Language | Pattern | Issue | Severity |
@@ -147,11 +163,63 @@ For each finding: record file path, line number, pattern matched, category, seve
 
 ---
 
+### Phase 0.5: Documentation & Tech Debt Scan (Audit mode)
+
+Scan project documentation for **already-known** performance concerns. Code-level grep patterns (Phase 0) catch what's visible in source files, but many performance risks are documented in planning files rather than flagged by anti-pattern grep — especially scaling risks, N+1 patterns over HTTP (not ORM), deferred compute, and architectural bottlenecks.
+
+#### Files to scan
+
+Search for these files (case-insensitive) in the project root and `docs/` directory:
+
+| File | Purpose |
+|------|---------|
+| `TODO.md`, `TODO.txt`, `TODO` | Active task and tech debt tracking |
+| `ROADMAP.md` | Future development plans, often including performance strategies |
+| `PLAN.md` | Implementation plans with performance decisions |
+| `TECH_DEBT.md`, `DEBT.md` | Explicit tech debt tracking |
+| `CHANGELOG.md` | Recent performance-related changes |
+| `docs/plans/*.md` | Phase-specific implementation plans |
+| `CLAUDE.md`, `AGENTS.md` | May contain performance standards and budgets |
+
+#### Keywords to grep
+
+Search each file for these keywords (case-insensitive):
+
+`performance`, `optimize`, `optimization`, `bottleneck`, `slow`, `latency`, `throughput`, `OOM`, `out of memory`, `memory`, `N+1`, `scale`, `scaling`, `cache`, `caching`, `index`, `indexing`, `timeout`, `budget`, `cost`, `expensive`, `heavy`, `vectorize`, `parallelize`, `batch`, `sequential`, `iterrows`, `toPandas`, `collect()`, `TODO`, `FIXME`, `HACK`, `tech debt`
+
+#### What to extract
+
+For each match, record:
+
+| Field | Description |
+|-------|-------------|
+| Source file | Which documentation file |
+| Item ID | TODO #, issue number, or section heading |
+| Description | The documented performance concern |
+| Current status | Active, deferred, resolved, or planned |
+| Related code | File paths or module names mentioned |
+
+#### Why this phase exists
+
+- **N+1 over HTTP** may not match ORM-focused grep patterns but is documented in TODO files
+- **OOM risks at scale** are invisible in code that works fine at current volume but documented as known debt
+- **Deferred compute** (e.g., provisioned columns not yet populated) is intentional but worth surfacing
+- **Planned optimizations** (caching layers, horizontal scaling) provide context for audit findings
+
+#### Integration with later phases
+
+Findings from this phase should be **cross-referenced** in the final report (Phase 13). For each code-level finding, note whether it was already tracked in documentation. For documented concerns not caught by code scanning, add them to the findings with source attribution.
+
+**Output:** Table of documented performance concerns with status, related code paths, and cross-reference notes for later phases.
+
+---
+
 ### Phase 1: Discovery (Both modes)
 
 Explore the project to understand its performance surface:
 
 - Read `CLAUDE.md`, `README.md`, `AGENTS.md`, and any architecture docs
+- Read `TODO.md`, `ROADMAP.md`, `PLAN.md`, and `TECH_DEBT.md` if they exist — note any documented performance concerns (these feed into Phase 0.5 cross-referencing)
 - Identify the tech stack, frameworks, and language versions
 - Map the **performance surface**:
   - Services and entry points: APIs, workers, cron jobs, event consumers
@@ -223,6 +291,10 @@ Evaluate memory allocation patterns, leak potential, cache sizing, and GC pressu
 | Copy vs reference | Unnecessary deep copies of large data structures | Medium |
 | Object pooling absence | Frequently created/destroyed expensive objects (DB connections, HTTP clients, buffers) | High |
 | GC pressure | High allocation rate causing frequent garbage collection pauses | Medium |
+| Scale-aware memory risk | `.toPandas()`, `.collect()`, or full-table loads that work at current volume but will OOM at 2-5x data growth | High |
+| Missing memory budget documentation | No documented limits for in-memory operations (e.g., max rows for `.toPandas()`, max payload size) | Medium |
+
+**Scale-aware assessment:** For each `.toPandas()`, `.collect()`, `pd.read_csv()`, or similar full-load operation, estimate whether the current data volume is close to a memory cliff. Check project documentation (TODO, ROADMAP) for known OOM risks. A function that works at 3M rows but will OOM at 6M is a High finding even if it works today.
 
 #### Grep patterns
 
@@ -338,6 +410,8 @@ Load `templates/database-optimization.md` for the full database optimization ref
 | Go | `sql\.Open\(` inside handler | New pool per request |
 | Java | `DriverManager\.getConnection\(` without pool | No connection pooling |
 | Any | `max_connections=1` or very low pool sizes | Artificial bottleneck |
+
+Note: For N+1 patterns over HTTP (REST API calls in loops instead of ORM queries in loops), see **Phase 0 → HTTP N+1 anti-patterns**. The same principle applies — batch or parallelize instead of sequential per-item requests.
 
 **Output:** Database optimization findings with query analysis, indexing gaps, and connection pooling assessment.
 
@@ -516,6 +590,20 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | SQL | `INSERT INTO.*SELECT \*` without column specification | Over-fetching in ETL |
 | Any | `to_csv\(\)` for data used analytically downstream | Should use Parquet |
 | Any | `for row in` iteration over large dataset instead of vectorized ops | Row-by-row processing |
+
+#### Exhaustive `.iterrows()` / `.apply(axis=1)` enumeration
+
+In addition to the grep patterns above, **enumerate ALL instances** of `.iterrows()`, `.itertuples()`, `df.apply(axis=1)`, and `for row in df` across the entire codebase. For each instance, classify it:
+
+| Classification | Criteria | Severity |
+|----------------|----------|----------|
+| **Vectorizable — data transformation** | Loop body performs aggregation, filtering, dict building, or accumulation that can be replaced with `groupby()`, `melt()`, `merge()`, `set_index().to_dict()`, or vectorized numpy operations | High (>10K rows), Medium (<10K rows), Low (<100 rows) |
+| **Vectorizable — lookup optimization** | Loop body contains a DataFrame filter like `df[df["key"] == val]` that can be replaced with pre-built `groupby().get_group()` | Medium (regardless of outer loop size) |
+| **Domain-required — per-item function call** | Loop body calls a function with inherently per-item logic (physics model, geometry test, ML inference with no batch API) | Acceptable — but check if inner data fetching/lookup is optimizable |
+| **Orchestration loop** | Loop iterates over a small control set (competition-seasons, match IDs) to drive batch processing | Acceptable |
+| **UI / display code** | Loop builds visualization data for <100 items | Low |
+
+**Important severity calibration:** When a loop is classified as "domain-required" but contains an inner vectorizable lookup (e.g., a DataFrame filter inside the loop), rate the **lookup optimization** separately from the loop itself. The loop is Acceptable; the inner lookup is Medium. Do not rate the entire loop as High just because it uses `.iterrows()`.
 
 **Output:** Data pipeline efficiency findings with processing pattern analysis and storage format recommendations.
 
@@ -739,6 +827,7 @@ Present concrete findings with fix status and ROI estimates:
 | Phase | Checks Run | Findings | Key Result |
 |-------|-----------|----------|------------|
 | Phase 0: Anti-Patterns | [X patterns scanned] | [Y findings] | [summary] |
+| Phase 0.5: Documentation Scan | [X files scanned] | [Y documented concerns] | [summary] |
 | Phase 1: Discovery | [X surfaces mapped] | [Y findings] | [summary] |
 | Phase 2: Algorithms | [X checks] | [Y findings] | [summary] |
 | Phase 3: Memory | [X checks] | [Y findings] | [summary] |
@@ -755,6 +844,19 @@ Present concrete findings with fix status and ROI estimates:
 ### Optimization Maturity Rating
 - **Checks passed**: X/Y (Z% coverage)
 - **Overall**: [Optimized / Mostly Optimized / Needs Optimization / Significant Waste]
+
+### Phase 0.5 Cross-Reference
+| Documented Concern | Source | Related Finding | Status |
+|--------------------|--------|-----------------|--------|
+| "N+1 sequential API calls" | TODO #3 | Finding #X (or: New — not caught by code scan) | Tracked |
+| "OOM risk at 2x volume" | TODO #4 | Finding #Y (P1/P2 column projection) | Partially addressed |
+
+### Documented Optimization Strategies (Not Yet Implemented)
+If the project's ROADMAP or planning docs describe optimization strategies not yet in code, list them here for context. These are not findings — they are planned work that provides context for the audit results.
+
+| Strategy | Source | Relevance to Audit |
+|----------|--------|-------------------|
+| Example: 5-layer caching architecture | ROADMAP.md | Explains why L2/L3 caching is absent (planned, not overlooked) |
 
 ### Ready for production: Yes / No (with blockers)
 ```

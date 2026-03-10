@@ -11,7 +11,7 @@ A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/cla
 | **c4** | C4 architecture diagrams using Structurizr DSL — self-contained HTML with embedded SVGs | `/mad-scientist-skills:c4` |
 | **final-review** | Pre-commit quality gate — code review, documentation check, and architecture diagram generation | `/mad-scientist-skills:final-review` |
 | **observability-audit** | Two-tier observability audit (Standard/Enterprise) — instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, SLIs/SLOs (beta) | `/mad-scientist-skills:observability-audit` |
-| **optimization-audit** | Single-tier optimization audit — algorithm efficiency, database queries, caching, concurrency, pipelines, cloud cost, profiling (beta) | `/mad-scientist-skills:optimization-audit` |
+| **optimization-audit** | Single-tier optimization audit — algorithm efficiency, database queries, caching, concurrency, pipelines, cloud cost, profiling | `/mad-scientist-skills:optimization-audit` |
 | **security-audit** | Two-tier security audit (Standard/Enterprise) — STRIDE, OWASP Top 10, infrastructure hardening, supply chain | `/mad-scientist-skills:security-audit` |
 
 ## Installation
@@ -145,7 +145,7 @@ Ask naturally ("Audit observability for this project", "Design telemetry strateg
 </details>
 
 <details>
-<summary><strong>optimization-audit</strong> — Single-Tier Optimization Audit (beta)</summary>
+<summary><strong>optimization-audit</strong> — Single-Tier Optimization Audit</summary>
 
 Two-mode, single-tier optimization analysis: **planning** (before code) and **audit** (existing code/infra). Single tier because optimization tools are overwhelmingly free/open-source (profilers, EXPLAIN, load testers, linters).
 
@@ -153,7 +153,8 @@ Two-mode, single-tier optimization analysis: **planning** (before code) and **au
 
 | Phase | Area | Planning | Audit |
 |-------|------|:--------:|:-----:|
-| 0 | Anti-pattern scanning (algorithm, memory, concurrency, database, logging) | | x |
+| 0 | Anti-pattern scanning (algorithm, memory, concurrency, database, HTTP N+1, logging) | | x |
+| 0.5 | Documentation & tech debt scan (TODO/ROADMAP/PLAN keyword search) | | x |
 | 1 | Performance surface discovery | x | x |
 | 2 | Algorithm & data structure efficiency | | x |
 | 3 | Memory management | | x |
