@@ -584,6 +584,11 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Full-table `.toPandas()` without filter | `spark.table(x).toPandas()` pulling entire tables to driver memory without `.filter()`, `.select()`, or `.limit()` — must filter to bounded subsets first | Critical |
 | Missing partition-level release | Processing multiple data partitions without `del df` + `gc.collect()` between iterations; peak memory = sum of all partitions instead of max single partition | High |
 | Schema merge on full overwrite | Using `mergeSchema=true` with `mode="overwrite"` — causes schema conflicts when column types change; use `overwriteSchema=true` for full overwrites | Medium |
+| Driver-bound computation | Work pulled to driver via `.toPandas()` that could stay distributed via `applyInPandas` / `mapInPandas` grouped by natural partition key (match_id, game_id, user_id). Chunk-and-release fixes OOM but does not fix throughput — executors sit idle while the driver processes sequentially | High |
+| Suboptimal group key for distributed execution | Using coarse grouping (e.g., `match_id`) when finer grouping (e.g., `(match_id, period)` or `(match_id, batch_id)`) would increase parallelism without breaking correctness. Check if the computation is decomposable across sub-groups with a trivial aggregation (sum, count) | Medium |
+| Redundant setup in per-item function calls | A function called N times in a loop that repeats identical setup (DataFrame splits, coordinate conversions, model loading, matrix construction) on each call when input data is shared across calls. Should accept batched inputs (e.g., `(n, 2)` array of points instead of scalar pair) | High |
+| Cache-eligible repeated computation across iterations | Same expensive computation (hierarchical clustering, spatial indexing, model loading) repeated for iterations sharing identical input data. Should cache by input hash or group key | Medium |
+| Map-reduce decomposable loops | A loop that accumulates per-key sums/counts across iterations, where the loop body is independent per iteration. Candidate for `applyInPandas` + Spark-native `groupBy().agg()` | High |
 
 #### Grep patterns
 
@@ -605,6 +610,10 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Python | `json\.loads\(.*\.read\(\)\)` or `pd\.read_json\(` loading all files before processing | Load-all-then-process; use load-process-release per file |
 | Python | `rows\.append\(\{` or `rows\.append\(dict\(` in a loop over >100K iterations | List-of-dicts accumulation; use chunked writes or columnar lists |
 | Python/Spark | `option\("mergeSchema".*\).*mode\("overwrite"\)` | Schema merge on full overwrite; use `overwriteSchema` instead |
+| Python/Spark | `for .* in .*:.*\.toPandas\(\)` followed by `spark\.createDataFrame\(` in same loop | Driver round-trip per iteration; use `applyInPandas` to keep data on executors |
+| Python | `for i in range\(len\(df\)\):` calling a function that accepts DataFrame + scalar from that row | Potential batched-function-call optimization — pass all scalars at once via vectorized call |
+| Python | `def .*\(.*df.*,.*x.*float.*,.*y.*float` (function accepting DataFrame + single point) | Candidate for batch version accepting `(n, 2)` array of points instead of scalar pair |
+| Python | Same `groupby\(\)` or clustering/indexing call repeated inside a loop where input data doesn't change between iterations | Cache-eligible: pre-compute once outside loop or cache by input hash |
 
 #### Exhaustive `.iterrows()` / `.apply(axis=1)` enumeration
 
@@ -614,7 +623,7 @@ In addition to the grep patterns above, **enumerate ALL instances** of `.iterrow
 |----------------|----------|----------|
 | **Vectorizable — data transformation** | Loop body performs aggregation, filtering, dict building, or accumulation that can be replaced with `groupby()`, `melt()`, `merge()`, `set_index().to_dict()`, or vectorized numpy operations | High (>10K rows), Medium (<10K rows), Low (<100 rows) |
 | **Vectorizable — lookup optimization** | Loop body contains a DataFrame filter like `df[df["key"] == val]` that can be replaced with pre-built `groupby().get_group()` | Medium (regardless of outer loop size) |
-| **Domain-required — per-item function call** | Loop body calls a function with inherently per-item logic (physics model, geometry test, ML inference with no batch API) | Acceptable — but check if inner data fetching/lookup is optimizable |
+| **Domain-required — per-item function call** | Loop body calls a function with inherently per-item logic (physics model, geometry test, ML inference with no batch API) | Acceptable — but check THREE things: (1) inner data fetching/lookup is optimizable, (2) the function repeats setup that could be hoisted/batched (see "Redundant setup in per-item function calls" above), (3) the loop is decomposable into independent groups for `applyInPandas` distribution |
 | **Orchestration loop** | Loop iterates over a small control set (competition-seasons, match IDs) to drive batch processing | Acceptable |
 | **UI / display code** | Loop builds visualization data for <100 items | Low |
 

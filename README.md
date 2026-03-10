@@ -11,7 +11,7 @@ A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/cla
 | **c4** | C4 architecture diagrams using Structurizr DSL — self-contained HTML with embedded SVGs | `/mad-scientist-skills:c4` |
 | **final-review** | Pre-commit quality gate — code review, documentation check, and architecture diagram generation | `/mad-scientist-skills:final-review` |
 | **observability-audit** | Two-tier observability audit (Standard/Enterprise) — instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, SLIs/SLOs (beta) | `/mad-scientist-skills:observability-audit` |
-| **optimization-audit** | Single-tier optimization audit — algorithm efficiency, database queries, caching, concurrency, pipelines, cloud cost, profiling | `/mad-scientist-skills:optimization-audit` |
+| **optimization-audit** | Single-tier optimization audit — algorithm efficiency, database queries, caching, concurrency, pipelines, distributed execution, cloud cost, profiling | `/mad-scientist-skills:optimization-audit` |
 | **security-audit** | Two-tier security audit (Standard/Enterprise) — STRIDE, OWASP Top 10, infrastructure hardening, supply chain | `/mad-scientist-skills:security-audit` |
 
 ## Installation
@@ -173,12 +173,12 @@ Two-mode, single-tier optimization analysis: **planning** (before code) and **au
 
 | Template | Purpose |
 |----------|---------|
-| `algorithm-complexity.md` | Big-O analysis, data structure selection, per-language profiling tools |
+| `algorithm-complexity.md` | Big-O analysis, data structure selection, per-language profiling tools, redundant setup / cross-iteration caching red flags |
 | `database-optimization.md` | N+1 detection, indexing strategies, query plans, connection pooling |
 | `caching-strategies.md` | Cache architecture, invalidation patterns, stampede protection, HTTP caching |
 | `concurrency-patterns.md` | Thread pool sizing, async/await correctness, lock contention, backpressure |
 | `frontend-performance.md` | Core Web Vitals, bundle optimization, image optimization, API responses |
-| `pipeline-efficiency.md` | Batch/streaming trade-offs, incremental processing, Spark/dbt tuning |
+| `pipeline-efficiency.md` | Batch/streaming trade-offs, incremental processing, Spark/dbt tuning, distributed execution (`applyInPandas`), redundant computation detection |
 | `profiling-benchmarking.md` | Load testing tools, micro-benchmarking, regression detection in CI |
 | `cloud-cost-optimization.md` | Right-sizing, auto-scaling, storage tiering, FinOps practices |
 

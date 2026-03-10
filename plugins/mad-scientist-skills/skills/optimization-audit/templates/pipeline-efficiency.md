@@ -625,6 +625,205 @@ def estimate_pipeline_cost(run_metadata: dict) -> dict:
 
 ---
 
+## Distributed Execution: `applyInPandas` / `mapInPandas`
+
+When Python libraries (NumPy, scikit-learn, XGBoost, custom analytics) must be used for computation, the critical question is **where** that computation runs — on the driver node or distributed across executors.
+
+### The Driver-Bound Anti-Pattern
+
+The most common anti-pattern in PySpark analytics pipelines: pulling distributed data to the driver via `.toPandas()`, processing it with Python/Pandas, then pushing results back via `spark.createDataFrame()`. This means executors sit idle while the driver does all the work, and the entire dataset must fit in driver memory.
+
+**BAD** — sequential chunk-and-release on the driver:
+
+```python
+import gc
+
+# All computation on the 16 GB driver — executors idle
+matches = spark.sql("SELECT DISTINCT match_id FROM tracking").toPandas()
+results = []
+for _, row in matches.iterrows():
+    match_id = row["match_id"]
+    match_df = spark.sql(f"SELECT * FROM tracking WHERE match_id = '{match_id}'").toPandas()
+    result = compute_analytics(match_df)  # CPU-bound on driver
+    results.append(result)
+    del match_df; gc.collect()  # Release memory for next chunk
+
+output_df = spark.createDataFrame(pd.concat(results))
+output_df.write.format("delta").mode("overwrite").save(output_path)
+```
+
+**GOOD** — distributed via `applyInPandas`:
+
+```python
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType
+
+result_schema = StructType([
+    StructField("match_id", StringType()),
+    StructField("player_id", StringType()),
+    StructField("metric_value", DoubleType()),
+])
+
+def compute_analytics_udf(match_df: pd.DataFrame) -> pd.DataFrame:
+    """Runs on executor — never touches driver memory."""
+    return compute_analytics(match_df)
+
+# Spark distributes groups across executors automatically
+result = (
+    spark.table("tracking")
+    .groupBy("match_id")
+    .applyInPandas(compute_analytics_udf, schema=result_schema)
+)
+result.write.format("delta").mode("overwrite").save(output_path)
+```
+
+### When to Use Each Pattern
+
+| Pattern | When to Use | Key Constraint |
+|---------|-------------|----------------|
+| `applyInPandas` | Group-by computation where each group is independent | Each materialized group must fit in executor memory |
+| `mapInPandas` | Row-level or partition-level transforms (no grouping needed) | Iterator-based, lower memory footprint |
+| `.toPandas()` on driver | Small result sets (<5M rows), global operations that cannot be partitioned | Driver memory ceiling |
+
+### Group Key Selection
+
+The group key determines parallelism AND memory usage. Finer keys = more parallelism + smaller groups, but check correctness.
+
+| Scenario | Naive Key | Better Key | Why |
+|----------|-----------|------------|-----|
+| Per-match computation, decomposable across sub-groups | `match_id` | `(match_id, period)` or `(match_id, frame_batch)` | More parallel groups, smaller memory per group |
+| Per-match computation, requires full match context | `match_id` | `match_id` | Cannot decompose — correctness requires all frames |
+| Per-competition aggregation | `competition_id` | `competition_id` | Large groups but unavoidable for cross-match computation |
+
+**Decomposability test:** If the final result is an aggregation (sum, count, mean) over per-group results, and each group can be computed independently, the computation is decomposable. Use finer group keys + Spark-native aggregation.
+
+```python
+# DECOMPOSABLE: per-player xT is sum of per-frame xT — split into frame batches
+# 1. Fine-grained applyInPandas by (match_id, frame_batch_id)
+# 2. Spark groupBy("player_id").agg(sum("off_ball_xt")) across all batches
+
+# NOT DECOMPOSABLE: entity resolution requires global TF-IDF matrix
+# Must stay on driver or use a single large executor
+```
+
+### Model Loading on Executors
+
+When UDFs need ML models or large lookup tables, load once per executor process, not once per group.
+
+**BAD** — loads model every time the UDF is called:
+
+```python
+def predict_udf(group_df: pd.DataFrame) -> pd.DataFrame:
+    model = load_model("/path/to/model")  # Loaded for every group!
+    return group_df.assign(prediction=model.predict(group_df))
+```
+
+**GOOD** — module-level cache reused across groups on the same executor:
+
+```python
+_model_cache: dict[str, object] = {}
+
+def predict_udf(group_df: pd.DataFrame) -> pd.DataFrame:
+    if "model" not in _model_cache:
+        _model_cache["model"] = load_model("/dbfs/path/to/model")
+    model = _model_cache["model"]
+    return group_df.assign(prediction=model.predict(group_df))
+```
+
+### Serverless Compute Constraints
+
+When targeting Databricks Serverless (or similar managed Spark environments), be aware of hard limits:
+
+| Constraint | Limit | Impact |
+|------------|-------|--------|
+| Driver memory | 16 GB (fixed) | Caps `.toPandas()` data volume |
+| Per-UDF executor memory | 1 GB | Each `applyInPandas` group must stay under ~800 MB |
+| `df.cache()` / `df.persist()` | Not supported | Cannot cache intermediate results |
+| Broadcast variables | Not supported | Close over small objects or load from storage |
+| Internet access in UDFs | Not available | Models must be pre-staged to cloud storage / UC Volume |
+| Spark config | Only 6 `spark.sql.*` params | Cannot tune executor count, memory, or instance type |
+
+### Estimating Group Sizes
+
+Before migrating to `applyInPandas`, estimate the in-memory size of the largest group:
+
+```python
+# Quick estimate: sample one group, measure pandas memory
+sample_group = spark.sql("""
+    SELECT * FROM tracking WHERE match_id = (
+        SELECT match_id FROM tracking GROUP BY match_id ORDER BY COUNT(*) DESC LIMIT 1
+    )
+""").toPandas()
+print(f"Largest group: {sample_group.memory_usage(deep=True).sum() / 1e6:.0f} MB")
+# If > 800 MB: split into sub-groups or use mapInPandas with iterator
+```
+
+---
+
+## Redundant Computation in Loop Bodies
+
+When a function is called N times in a loop, look for setup work repeated identically across calls. This is distinct from algorithmic complexity — the function itself may be O(n), but calling it N times with redundant setup is O(N × setup_cost + N × n).
+
+### Pattern: Shared Setup Across Function Calls
+
+**BAD** — function called per-player repeats team split for every player:
+
+```python
+# compute_metric() splits DataFrame into home/away on every call
+for i in range(len(players_df)):
+    x, y = players_df.iloc[i]["x"], players_df.iloc[i]["y"]
+    metric = compute_metric(players_df, x, y)  # Re-splits home/away inside!
+    results.append(metric)
+```
+
+**GOOD** — hoist shared setup, pass batch of inputs:
+
+```python
+# Split once, pass all points at once
+home_mask = players_df["team"] == "home"
+home_df = players_df[home_mask]
+away_df = players_df[~home_mask]
+
+# Batch version accepts (n, 2) array of points
+all_points = np.column_stack([players_df["x"].values, players_df["y"].values])
+metrics = compute_metric_batch(home_df, away_df, all_points)
+```
+
+### Pattern: Cache-Eligible Repeated Computation
+
+When iterations share identical input data for an expensive sub-computation, cache by input hash.
+
+**BAD** — Ward clustering recomputed per pass, identical for passes in same frame:
+
+```python
+for _, pass_row in passes_df.iterrows():
+    frame_defenders = get_defenders_at_frame(pass_row["frame"])
+    clusters = ward_clustering(frame_defenders)  # Identical for same frame!
+    is_line_breaking = check_line_breaking(pass_row, clusters)
+```
+
+**GOOD** — cache by frame:
+
+```python
+cluster_cache: dict[int, np.ndarray] = {}
+for _, pass_row in passes_df.iterrows():
+    frame = pass_row["frame"]
+    if frame not in cluster_cache:
+        frame_defenders = get_defenders_at_frame(frame)
+        cluster_cache[frame] = ward_clustering(frame_defenders)
+    is_line_breaking = check_line_breaking(pass_row, cluster_cache[frame])
+```
+
+### Identification Checklist
+
+When reviewing a loop that calls a function N times:
+
+1. **Does the function accept the same DataFrame/collection on every call?** → The function likely re-derives subsets (home/away split, team filter, position extraction) on every invocation. Hoist the derivation.
+2. **Does the function accept scalar arguments (x, y, timestamp) drawn from a DataFrame?** → The function may have a batch-compatible inner implementation. Pass all scalars at once as an array.
+3. **Does the function perform expensive sub-computation (clustering, matrix factorization, model loading) that depends on a subset of its inputs?** → Cache by the subset that determines the expensive result.
+4. **Is the final result an aggregation over per-iteration outputs?** → The loop may be map-reduce decomposable — parallelize with `applyInPandas` + Spark aggregation.
+
+---
+
 ## Anti-Patterns
 
 | Anti-Pattern | Impact | Fix |
@@ -633,10 +832,12 @@ def estimate_pipeline_cost(run_metadata: dict) -> dict:
 | CSV/JSON for analytical workloads | Slow reads, no pushdown | Migrate to Parquet or Delta Lake |
 | `groupByKey()` in Spark | Excessive shuffle, OOM | `reduceByKey()` or DataFrame aggregations |
 | `collect()` / `toPandas()` on large data | Driver OOM | Distributed ops or aggregate first |
+| Driver-bound analytics loop | Executors idle, sequential | `applyInPandas` / `mapInPandas` with natural group key |
 | `df.apply(func, axis=1)` | 100x slower than vectorized | `np.select`, vectorized Pandas methods |
 | Over-partitioned data (tiny files) | Slow listing, high overhead | Compact files, reduce granularity |
 | No dead letter handling | Silent data loss | Quarantine failed records with metadata |
 | Skewed joins without mitigation | Straggler tasks dominate | Salt keys or broadcast joins |
+| Redundant setup in per-item function call | N × setup_cost wasted | Hoist shared setup, batch inputs, or cache |
 
 ## Best Practices
 
@@ -648,5 +849,10 @@ def estimate_pipeline_cost(run_metadata: dict) -> dict:
 - Enable AQE in Spark 3.x — free runtime optimization
 - Track dead letter rates as a pipeline health signal — alert when rate exceeds 5%
 - Vectorize all DataFrame operations — avoid `apply(axis=1)`, `iterrows()`, Python loops
+- Move Python analytics to executors via `applyInPandas` — the driver should orchestrate, not compute
+- Choose the finest correct group key — decomposable computations should use sub-match grouping for maximum parallelism
+- Cache model loading on executors — module-level `_model_cache` dict, not per-group load
+- Estimate group sizes before migrating to `applyInPandas` — groups must fit in executor memory (1 GB on serverless)
+- Hoist shared setup out of per-item loops — repeated team splits, index builds, and model loads are free speedups
 - Estimate pipeline cost per run — make cost visible to drive optimization decisions
 - Use model selection (`dbt run --select`) for iteration — avoid running the full DAG

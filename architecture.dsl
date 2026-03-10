@@ -7,7 +7,7 @@ workspace "mad-scientist-skills" "Claude Code plugin providing C4 architecture d
             c4Skill = container "c4 Skill" "Generates interactive C4 architecture diagrams from Structurizr DSL" "SKILL.md, c4_assemble.py, 5 templates"
             finalReviewSkill = container "final-review Skill" "Pre-commit quality gate that reviews code, docs, and generates architecture diagrams" "SKILL.md"
             observabilityAuditSkill = container "observability-audit Skill" "Two-tier observability audit covering instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, and SLIs/SLOs (beta)" "SKILL.md, 7 templates"
-            optimizationAuditSkill = container "optimization-audit Skill" "Single-tier optimization audit covering algorithm efficiency, database queries, caching, concurrency, pipelines, cloud cost, and profiling" "SKILL.md, 8 templates"
+            optimizationAuditSkill = container "optimization-audit Skill" "Single-tier optimization audit covering algorithm efficiency, database queries, caching, concurrency, pipelines, distributed execution, cloud cost, and profiling" "SKILL.md, 8 templates"
             securityAuditSkill = container "security-audit Skill" "Two-tier security audit covering STRIDE, OWASP Top 10, infrastructure, and supply chain" "SKILL.md, 6 templates"
         }
 
