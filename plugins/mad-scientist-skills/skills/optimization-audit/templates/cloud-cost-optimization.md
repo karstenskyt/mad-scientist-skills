@@ -459,6 +459,51 @@ Data transfer costs are often the surprise line item on cloud bills. Cross-regio
 
 ---
 
+## Driver-vs-Executor Cost Analysis
+
+On managed Spark platforms (Databricks, EMR, Dataproc), executor nodes are already provisioned and billed as part of the cluster. When analytics pipelines pull data to the driver via `.toPandas()` and process it sequentially, the executors sit idle — you are paying for distributed compute but only using the driver.
+
+### Detection
+
+Look for these signals:
+
+| Signal | Indicates |
+|--------|-----------|
+| Driver CPU at 80-100%, executor CPU near 0% | Driver-bound sequential processing |
+| Pipeline duration dominated by Python loops, not Spark stages | Work happening on driver, not executors |
+| `for match_id in ...: spark.sql(...).toPandas()` pattern | Per-item driver round-trip |
+| Total wall-clock >> (total_data / cluster_throughput) | Cluster underutilized |
+
+### Cost Impact
+
+Migrating driver-bound computation to executors via `applyInPandas`:
+
+- **Reduces wall-clock time** proportionally to the number of executor cores utilized
+- **Does NOT increase cost** — the same cluster resources are used, just more efficiently
+- **May reduce cost** — shorter wall-clock means the cluster (especially serverless) is released sooner
+
+```
+# Example cost calculation
+# Current: 20 matches × 10 min each = 200 min wall-clock on driver
+#          Executors: idle for 200 min, still billed
+# After:   20 matches × 10 min each / 8 executor slots = 25 min wall-clock
+#          Same DBU cost, 8x faster completion, cluster released 175 min earlier
+```
+
+### When to Flag
+
+Flag as **High severity** when:
+1. Executors are provisioned (not serverless scale-to-zero) AND idle during driver processing
+2. Pipeline wall-clock exceeds 30 minutes with sequential `.toPandas()` loops
+3. The computation is decomposable (see pipeline-efficiency.md decomposability test)
+
+Do NOT flag when:
+1. The operation is genuinely non-distributable (global TF-IDF, full-corpus training)
+2. Data volume is small enough that distribution overhead exceeds the benefit
+3. The cluster is serverless with instant scale-to-zero (idle executors cost nothing)
+
+---
+
 ## FinOps Practices
 
 FinOps makes cloud cost a first-class engineering concern, not an afterthought discovered during quarterly budget reviews.

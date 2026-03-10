@@ -694,7 +694,13 @@ The group key determines parallelism AND memory usage. Finer keys = more paralle
 | Per-match computation, requires full match context | `match_id` | `match_id` | Cannot decompose — correctness requires all frames |
 | Per-competition aggregation | `competition_id` | `competition_id` | Large groups but unavoidable for cross-match computation |
 
-**Decomposability test:** If the final result is an aggregation (sum, count, mean) over per-group results, and each group can be computed independently, the computation is decomposable. Use finer group keys + Spark-native aggregation.
+**Formal decomposability test — all three criteria must hold:**
+
+1. **Independent**: The loop body for each group/iteration is independent — no cross-group state, no ordering dependency, no shared mutable accumulator
+2. **Aggregation result**: The final result is an aggregation (sum, count, mean, max) over per-group outputs
+3. **Associative + commutative**: Partial results can be combined in any order — `sum(batch_1) + sum(batch_2) == sum(all)`
+
+If all three hold, the computation can be split into finer groups (e.g., `(match_id, period)` or `(match_id, frame_batch_id)`) with `applyInPandas`, and the final aggregation done via Spark-native `groupBy().agg()`.
 
 ```python
 # DECOMPOSABLE: per-player xT is sum of per-frame xT — split into frame batches
@@ -704,6 +710,90 @@ The group key determines parallelism AND memory usage. Finer keys = more paralle
 # NOT DECOMPOSABLE: entity resolution requires global TF-IDF matrix
 # Must stay on driver or use a single large executor
 ```
+
+### Synthetic Partition Keys
+
+When natural sub-groups don't exist or are too coarse, create synthetic partition keys for uniform distribution:
+
+```python
+from pyspark.sql import functions as F
+
+# Time-based batching: split long time series into fixed-size batches
+batch_size = 270  # ~270 sampled frames per batch (5 min of play at 1fps)
+tracking_sdf = tracking_sdf.withColumn(
+    "frame_batch_id",
+    (F.col("frame") / (frame_rate * batch_size)).cast("int")
+)
+# Group by (match_id, frame_batch_id) — creates ~20 groups per match
+
+# Row-based batching: split a flat collection into uniform chunks
+num_batches = 90  # target ~100 items per batch
+player_sdf = player_sdf.withColumn(
+    "batch_id", (F.monotonically_increasing_id() % num_batches).cast("int")
+)
+# Group by batch_id — creates ~90 uniform groups
+```
+
+**Sizing formula:** Each materialized group must fit in executor memory. Estimate:
+
+```
+group_bytes = (n_rows_per_group × n_cols × 8 bytes_per_float64)
+```
+
+Target: `group_bytes < 800 MB` (leaving headroom below the 1 GB UDF limit on serverless).
+
+| Group too large? | Fix |
+|-----------------|-----|
+| Yes (>800 MB) | Create finer synthetic key (`frame_batch_id`, `row_batch_id`) |
+| No (<10 MB) | Consider coarser key to reduce group count and overhead |
+
+### Non-Distributable Computation
+
+Not everything can or should be migrated to `applyInPandas`. Document these explicitly to avoid wasted refactoring effort:
+
+| Criteria | Example | Why it can't distribute |
+|----------|---------|------------------------|
+| **Global cross-group state** | TF-IDF vectorization, global normalization, cross-source entity resolution | Requires the full dataset to compute global statistics (IDF weights, z-scores) |
+| **Full-corpus training** | ML model training that needs representative samples from all groups | Partitioned training produces biased models; each group has too few samples |
+| **Ordering-sensitive across groups** | Time-series analysis requiring cross-match temporal ordering | Results depend on relative position across the full dataset |
+| **Small bounded operations** | Metadata queries, config loading, 100-row seed tables | Overhead of distribution exceeds the computation cost |
+
+When you identify a non-distributable pipeline, document **why** it stays on the driver. This prevents future audits from re-flagging it.
+
+### Multi-Pass Distributed Architecture
+
+When a pipeline has stages with different grouping requirements, chain multiple `applyInPandas` calls with progressively coarser grouping:
+
+**BAD** — single-pass forces the coarsest group key for all stages:
+
+```python
+# Everything grouped by match_id, even though credit assignment is per-period
+results = (
+    joined_sdf
+    .groupBy("match_id")
+    .applyInPandas(do_everything, schema=output_schema)
+)
+```
+
+**GOOD** — two-pass with appropriate granularity per stage:
+
+```python
+# Pass 1: Credit assignment — independent per period (finer grouping = more parallelism)
+credits_sdf = (
+    joined_sdf
+    .groupBy("match_id", "period")
+    .applyInPandas(assign_credits_period, schema=credits_schema)
+)
+
+# Pass 2: Value estimation — needs all credits from match (coarser grouping)
+valued_sdf = (
+    credits_sdf
+    .groupBy("match_id")
+    .applyInPandas(estimate_values_match, schema=valued_schema)
+)
+```
+
+**When to use multi-pass:** When an earlier stage is embarrassingly parallel at fine granularity (per-event, per-frame, per-period) but a later stage requires coarser context (per-match, per-competition). The fine-grained pass does the expensive work; the coarse pass does cheap aggregation or model scoring.
 
 ### Model Loading on Executors
 
@@ -728,6 +818,12 @@ def predict_udf(group_df: pd.DataFrame) -> pd.DataFrame:
     model = _model_cache["model"]
     return group_df.assign(prediction=model.predict(group_df))
 ```
+
+**Why this works:** Spark reuses Python worker processes across groups on the same executor. The module-level dict persists for the lifetime of the worker process, so the model is loaded once per executor, not once per group. On serverless environments without broadcast variables, this is the standard pattern for sharing large objects across UDF invocations.
+
+**What to cache:** ML models (XGBoost, Doc2Vec, scikit-learn), lookup tables, pre-computed indices. Load from shared storage (UC Volumes, S3, GCS) inside the UDF body — not from driver memory, which is inaccessible on executors.
+
+**What NOT to cache:** Per-group data (defeats the purpose of groupBy), mutable state that should reset per group, connections to external services (not available on serverless executors).
 
 ### Serverless Compute Constraints
 
@@ -821,6 +917,7 @@ When reviewing a loop that calls a function N times:
 2. **Does the function accept scalar arguments (x, y, timestamp) drawn from a DataFrame?** → The function may have a batch-compatible inner implementation. Pass all scalars at once as an array.
 3. **Does the function perform expensive sub-computation (clustering, matrix factorization, model loading) that depends on a subset of its inputs?** → Cache by the subset that determines the expensive result.
 4. **Is the final result an aggregation over per-iteration outputs?** → The loop may be map-reduce decomposable — parallelize with `applyInPandas` + Spark aggregation.
+5. **Does the inner function's core computation already support batch inputs that the wrapper doesn't expose?** → Look past the function's public signature at its internal math. If the core uses matrix operations, NumPy broadcasting, or numerical integration that naturally handles arrays, the batch version may only need to hoist setup and pass stacked inputs (e.g., `(n, 2)` array instead of scalar `(x, y)` pair). This is the highest-ROI optimization when found — often 10-20x with minimal code change.
 
 ---
 

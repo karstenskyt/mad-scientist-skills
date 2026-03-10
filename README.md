@@ -180,7 +180,7 @@ Two-mode, single-tier optimization analysis: **planning** (before code) and **au
 | `frontend-performance.md` | Core Web Vitals, bundle optimization, image optimization, API responses |
 | `pipeline-efficiency.md` | Batch/streaming trade-offs, incremental processing, Spark/dbt tuning, distributed execution (`applyInPandas`), redundant computation detection |
 | `profiling-benchmarking.md` | Load testing tools, micro-benchmarking, regression detection in CI |
-| `cloud-cost-optimization.md` | Right-sizing, auto-scaling, storage tiering, FinOps practices |
+| `cloud-cost-optimization.md` | Right-sizing, auto-scaling, storage tiering, driver-vs-executor cost analysis, FinOps practices |
 
 ### Usage
 

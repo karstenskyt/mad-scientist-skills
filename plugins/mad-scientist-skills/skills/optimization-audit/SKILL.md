@@ -555,7 +555,7 @@ Load `templates/frontend-performance.md` for the full frontend performance refer
 
 **Only execute this phase if data pipeline tools are detected** (dbt, Spark, Airflow, Dagster, Prefect, Pandas for ETL, or similar pipeline frameworks).
 
-Load `templates/pipeline-efficiency.md` for the full pipeline efficiency reference with batch/stream trade-offs, incremental processing patterns, and storage format selection.
+Load `templates/pipeline-efficiency.md` for the full pipeline efficiency reference with batch/stream trade-offs, incremental processing patterns, storage format selection, distributed execution (`applyInPandas`), synthetic partition keys, non-distributable computation classification, multi-pass architecture, and redundant computation detection.
 
 **Planning mode:** Design the pipeline efficiency strategy:
 - What are the latency requirements? (batch overnight, micro-batch hourly, near-real-time)
@@ -585,10 +585,14 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Missing partition-level release | Processing multiple data partitions without `del df` + `gc.collect()` between iterations; peak memory = sum of all partitions instead of max single partition | High |
 | Schema merge on full overwrite | Using `mergeSchema=true` with `mode="overwrite"` — causes schema conflicts when column types change; use `overwriteSchema=true` for full overwrites | Medium |
 | Driver-bound computation | Work pulled to driver via `.toPandas()` that could stay distributed via `applyInPandas` / `mapInPandas` grouped by natural partition key (match_id, game_id, user_id). Chunk-and-release fixes OOM but does not fix throughput — executors sit idle while the driver processes sequentially | High |
-| Suboptimal group key for distributed execution | Using coarse grouping (e.g., `match_id`) when finer grouping (e.g., `(match_id, period)` or `(match_id, batch_id)`) would increase parallelism without breaking correctness. Check if the computation is decomposable across sub-groups with a trivial aggregation (sum, count) | Medium |
+| Suboptimal group key for distributed execution | Using coarse grouping (e.g., `match_id`) when finer grouping (e.g., `(match_id, period)` or `(match_id, batch_id)`) would increase parallelism without breaking correctness. Apply the **formal decomposability test**: (1) loop body is independent per group — no cross-group state or ordering dependency, (2) final result is an aggregation (sum, count, mean, max) over per-group outputs, (3) aggregation is associative and commutative — partial results can be combined in any order. If all three hold, use finer group keys + Spark-native aggregation. When natural sub-groups don't exist, create **synthetic partition keys**: `batch_id = (monotonic_key / batch_size).cast("int")`. Size groups so `n_rows × n_cols × 8 bytes / n_groups < UDF_memory_limit` (1 GB on serverless) | Medium |
 | Redundant setup in per-item function calls | A function called N times in a loop that repeats identical setup (DataFrame splits, coordinate conversions, model loading, matrix construction) on each call when input data is shared across calls. Should accept batched inputs (e.g., `(n, 2)` array of points instead of scalar pair) | High |
+| Missing executor-side model caching | UDF loads ML model or large lookup table on every group invocation instead of caching at module level. On serverless (no broadcast variables), use a module-level `_model_cache: dict[str, object]` that lazy-loads from shared storage (UC Volume, S3, GCS) inside the UDF body. Spark reuses Python worker processes across groups, so the model is loaded once per executor, not once per group | Medium |
 | Cache-eligible repeated computation across iterations | Same expensive computation (hierarchical clustering, spatial indexing, model loading) repeated for iterations sharing identical input data. Should cache by input hash or group key | Medium |
-| Map-reduce decomposable loops | A loop that accumulates per-key sums/counts across iterations, where the loop body is independent per iteration. Candidate for `applyInPandas` + Spark-native `groupBy().agg()` | High |
+| Map-reduce decomposable loops | A loop that accumulates per-key sums/counts across iterations, where the loop body is independent per iteration. Apply the **formal decomposability test** (see "Suboptimal group key" above). Candidate for `applyInPandas` + Spark-native `groupBy().agg()` | High |
+| Non-distributable computation | Operations that CANNOT be migrated to `applyInPandas` — identify these to avoid wasted refactoring effort. Criteria: (a) global operations requiring cross-group state (TF-IDF vectorization, global normalization, cross-source entity resolution), (b) training operations that need the full corpus for statistical validity, (c) operations where result depends on relative ordering across the full dataset. These must stay on the driver or use a single large executor. Document explicitly why distribution is not possible | Low (informational) |
+| Multi-pass distributed architecture | Pipeline stages with different grouping requirements that should chain multiple `applyInPandas` calls with progressively coarser grouping. Example: credit assignment is per-event within a period (group by `(match_id, period)`), but value estimation needs all credits from a match (group by `match_id`). Each pass writes an intermediate Spark DataFrame; the next pass reads it with a coarser group key | Medium |
+| Batch-ready inner function not exposed | A function called N times in a loop where the function's core computation (matrix operations, numerical integration) already supports array/batch inputs internally, but the wrapper function accepts only scalars. The batch version may only need to hoist setup and call the existing computation with stacked inputs — check the function's inner math, not just its public signature | High |
 
 #### Grep patterns
 
@@ -623,7 +627,7 @@ In addition to the grep patterns above, **enumerate ALL instances** of `.iterrow
 |----------------|----------|----------|
 | **Vectorizable — data transformation** | Loop body performs aggregation, filtering, dict building, or accumulation that can be replaced with `groupby()`, `melt()`, `merge()`, `set_index().to_dict()`, or vectorized numpy operations | High (>10K rows), Medium (<10K rows), Low (<100 rows) |
 | **Vectorizable — lookup optimization** | Loop body contains a DataFrame filter like `df[df["key"] == val]` that can be replaced with pre-built `groupby().get_group()` | Medium (regardless of outer loop size) |
-| **Domain-required — per-item function call** | Loop body calls a function with inherently per-item logic (physics model, geometry test, ML inference with no batch API) | Acceptable — but check THREE things: (1) inner data fetching/lookup is optimizable, (2) the function repeats setup that could be hoisted/batched (see "Redundant setup in per-item function calls" above), (3) the loop is decomposable into independent groups for `applyInPandas` distribution |
+| **Domain-required — per-item function call** | Loop body calls a function with inherently per-item logic (physics model, geometry test, ML inference with no batch API) | Acceptable — but check FOUR things: (1) inner data fetching/lookup is optimizable, (2) the function repeats setup that could be hoisted/batched (see "Redundant setup in per-item function calls" above), (3) the loop is decomposable into independent groups for `applyInPandas` distribution, (4) the inner function's underlying computation already supports batch inputs (e.g., accepts `(n, 2)` array) that the wrapper doesn't expose — check the function's core math, not just its signature |
 | **Orchestration loop** | Loop iterates over a small control set (competition-seasons, match IDs) to drive batch processing | Acceptable |
 | **UI / display code** | Loop builds visualization data for <100 items | Low |
 
@@ -679,7 +683,7 @@ In addition to the grep patterns above, **enumerate ALL instances** of `.iterrow
 
 **Only execute this phase if IaC (Terraform, CloudFormation, Pulumi), Kubernetes manifests, or cloud deployment configuration exists.**
 
-Load `templates/cloud-cost-optimization.md` for the full cloud cost reference with right-sizing methodology, auto-scaling patterns, and cost estimation tools.
+Load `templates/cloud-cost-optimization.md` for the full cloud cost reference with right-sizing methodology, auto-scaling patterns, cost estimation tools, and driver-vs-executor cost analysis.
 
 **Planning mode:** Design the cost optimization strategy:
 - What is the workload profile? (steady-state, bursty, diurnal, batch)
@@ -704,6 +708,7 @@ Load `templates/cloud-cost-optimization.md` for the full cloud cost reference wi
 | Oversized databases | RDS instance with < 10% CPU utilization | High |
 | Horizontal scaling capability | Application stateful, preventing horizontal scale-out | High |
 | Scale-down policy | No scale-down cooldown causing thrashing | Medium |
+| Driver-vs-executor cost waste | Executors sitting idle while the driver processes data sequentially via `.toPandas()` loops. On managed Spark (Databricks, EMR, Dataproc), executors are already provisioned and billed — migrating computation to executors via `applyInPandas` / `mapInPandas` reduces wall-clock time without increasing cost, because the same cluster resources are utilized instead of wasted. Flag any pipeline where driver CPU is the bottleneck while executor CPU is near zero | High |
 
 #### Grep patterns
 
