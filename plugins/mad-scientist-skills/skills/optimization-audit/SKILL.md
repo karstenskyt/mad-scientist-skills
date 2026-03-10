@@ -88,6 +88,10 @@ Scan all source files for these patterns. Each match requires manual review — 
 | Python | `@lru_cache` without `maxsize` (or `maxsize=None`) | Unbounded cache | Critical |
 | Python | `global ` + mutable data structures | Global state that grows unboundedly | High |
 | Python | `df = pd\.read_csv\(` on large files without `chunksize` | Entire file loaded into memory | High |
+| Python | `\.append\(` or `\.extend\(` inside a loop accumulating `list[dict]` with >100K expected items | Unbounded list-of-dicts accumulation; use columnar lists, chunked writes, or per-partition processing | High |
+| Python/Spark | `spark\.table\(.*\)\.toPandas\(\)` without `.filter\(\)` or `.select\(\)` | Full-table pull to driver; filter or aggregate before `.toPandas()` | Critical |
+| Python | `pd\.concat\(` on a list accumulated in a loop, followed by a single write | Batch accumulation OOM; write per partition/chunk with `del` + `gc.collect()` | High |
+| Python | Loading all files/partitions into memory before processing any | Batch-load-all anti-pattern; use load-process-release (Splitter pattern) one partition at a time | High |
 | JS/TS | `addEventListener\(` without corresponding `removeEventListener` | Event listener leak | High |
 | JS/TS | `setInterval\(` without `clearInterval` | Timer leak | High |
 | JS/TS | `new Map\(\)` or `new Set\(\)` used as cache without eviction | Unbounded growth | High |
@@ -292,9 +296,11 @@ Evaluate memory allocation patterns, leak potential, cache sizing, and GC pressu
 | Object pooling absence | Frequently created/destroyed expensive objects (DB connections, HTTP clients, buffers) | High |
 | GC pressure | High allocation rate causing frequent garbage collection pauses | Medium |
 | Scale-aware memory risk | `.toPandas()`, `.collect()`, or full-table loads that work at current volume but will OOM at 2-5x data growth | High |
+| Batch accumulation before write | Accumulating all data (via `pd.concat()`, list append, or loading all files) before a single write instead of per-partition write-and-release | High |
+| Missing per-partition release | Processing multiple partitions without `del` + `gc.collect()` between partitions; peak memory = sum of all partitions instead of max single partition | High |
 | Missing memory budget documentation | No documented limits for in-memory operations (e.g., max rows for `.toPandas()`, max payload size) | Medium |
 
-**Scale-aware assessment:** For each `.toPandas()`, `.collect()`, `pd.read_csv()`, or similar full-load operation, estimate whether the current data volume is close to a memory cliff. Check project documentation (TODO, ROADMAP) for known OOM risks. A function that works at 3M rows but will OOM at 6M is a High finding even if it works today.
+**Scale-aware assessment:** For each `.toPandas()`, `.collect()`, `pd.read_csv()`, `pd.concat()`, or similar full-load operation, estimate whether the current data volume is close to a memory cliff. Check project documentation (TODO, ROADMAP) for known OOM risks. A function that works at 3M rows but will OOM at 6M is a High finding even if it works today. **Any code that accumulates data from multiple partitions/files into memory before writing must be flagged regardless of current data size** — the pattern itself is the anti-pattern, not the volume. The fix is always the Splitter pattern: load one partition, process, write, release, repeat.
 
 #### Grep patterns
 
@@ -574,6 +580,10 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Idempotency | Pipeline not safe to re-run (produces duplicates or corrupts state) | High |
 | Dead letter handling | Failed records silently dropped instead of quarantined | High |
 | Row-by-row processing | Python loops over DataFrames instead of vectorized operations | High |
+| Batch accumulation before write | Collecting all partitions/files into memory (via `pd.concat()` list, dict accumulation, or loading all files) before a single write operation instead of per-partition write-and-release (Splitter/EIP pattern) | Critical |
+| Full-table `.toPandas()` without filter | `spark.table(x).toPandas()` pulling entire tables to driver memory without `.filter()`, `.select()`, or `.limit()` — must filter to bounded subsets first | Critical |
+| Missing partition-level release | Processing multiple data partitions without `del df` + `gc.collect()` between iterations; peak memory = sum of all partitions instead of max single partition | High |
+| Schema merge on full overwrite | Using `mergeSchema=true` with `mode="overwrite"` — causes schema conflicts when column types change; use `overwriteSchema=true` for full overwrites | Medium |
 
 #### Grep patterns
 
@@ -590,6 +600,11 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | SQL | `INSERT INTO.*SELECT \*` without column specification | Over-fetching in ETL |
 | Any | `to_csv\(\)` for data used analytically downstream | Should use Parquet |
 | Any | `for row in` iteration over large dataset instead of vectorized ops | Row-by-row processing |
+| Python | `all_.*\.append\(` or `results\.append\(` in a loop followed by `pd\.concat\(all_` | Batch accumulation; write per partition with `del` + `gc.collect()` |
+| Python/Spark | `spark\.table\(.*\)\.toPandas\(\)` without preceding `.filter\(\)` or `.select\(\)` | Full-table pull to driver; filter first |
+| Python | `json\.loads\(.*\.read\(\)\)` or `pd\.read_json\(` loading all files before processing | Load-all-then-process; use load-process-release per file |
+| Python | `rows\.append\(\{` or `rows\.append\(dict\(` in a loop over >100K iterations | List-of-dicts accumulation; use chunked writes or columnar lists |
+| Python/Spark | `option\("mergeSchema".*\).*mode\("overwrite"\)` | Schema merge on full overwrite; use `overwriteSchema` instead |
 
 #### Exhaustive `.iterrows()` / `.apply(axis=1)` enumeration
 

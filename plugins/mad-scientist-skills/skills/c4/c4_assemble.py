@@ -45,7 +45,6 @@ from __future__ import annotations
 
 import argparse
 import html as html_mod
-import os
 import re
 import sys
 import tempfile
