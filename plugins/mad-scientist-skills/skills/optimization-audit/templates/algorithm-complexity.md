@@ -551,4 +551,3 @@ Systematic approach for reviewing hot paths during Phase 2.
 | Function called N times with shared setup | `for i in range(N): f(df, scalars[i])` where `f` re-derives subsets of `df` each call | Hoist shared setup (team splits, index builds) outside loop; create batch version accepting `(N, d)` array instead of scalar pair |
 | Identical expensive computation across loop iterations | Same clustering, matrix factorization, or spatial index built for iterations sharing identical input | Cache by input key (frame ID, group ID) or input hash; pre-compute once outside loop |
 | Map-reduce loop accumulated as Python list | `results = []; for group in groups: results.append(compute(group))` where final output is `sum`/`count`/`mean` over results | Apply reducing function directly (generator + `sum`/`mean`); in Spark: distribute via `applyInPandas` + `groupBy().agg()` |
-
