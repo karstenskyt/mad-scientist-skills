@@ -120,6 +120,76 @@ WHERE event_time > (
 )
 ```
 
+### Ingestion Skip Guards (No-Op Efficiency)
+
+Ingestion pipelines are often written for correctness (idempotent `replaceWhere`) but miss the efficiency half: checking whether data already exists before doing expensive fetch/parse/write work. On scheduled runs, this turns every no-op into a full re-ingest.
+
+**The problem:** An ingestion pipeline with 5 data sources × 60 partitions each might execute ~300 HTTP requests, ~300 `df.count()` calls, and ~300 Delta writes on every scheduled run — even when nothing has changed. At 1-3 seconds per Delta write on serverless, that's 5-15 minutes of pure overhead.
+
+**BAD** — unconditional fetch and write on every run:
+
+```python
+# Downloads and overwrites every partition, every run, regardless of what exists
+for match_id in all_match_ids:
+    data = fetch_match_data(match_id)  # HTTP request every time
+    df = spark.createDataFrame(data)
+    row_count = validate_dataframe(df, required_cols, "source")  # df.count() every time
+    write_delta_table(df, catalog, schema, table_name,
+                      replace_where=f"match_id = '{match_id}'",
+                      row_count=row_count)  # Delta write every time
+```
+
+**GOOD** — skip guard checks existing partitions first:
+
+```python
+# Check what already exists — one Spark job, regardless of source count
+full_table = f"{catalog}.{schema}.{table_name}"
+existing: set[str] = set()
+if spark.catalog.tableExists(full_table):
+    existing = {
+        str(row["match_id"])
+        for row in spark.table(full_table)
+        .select("match_id").distinct().collect()
+    }
+new_ids = [mid for mid in all_match_ids if str(mid) not in existing]
+if not new_ids:
+    logger.info("All %d partitions already ingested — skipping", len(existing))
+    return
+
+# Only fetch and write new data
+for match_id in new_ids:
+    data = fetch_match_data(match_id)
+    df = spark.createDataFrame(data)
+    row_count = validate_dataframe(df, required_cols, "source")
+    write_delta_table(df, catalog, schema, table_name,
+                      replace_where=f"match_id = '{match_id}'",
+                      row_count=row_count)
+```
+
+**Key implementation notes:**
+
+- Use `str()` normalization when comparing keys — Spark may return `int` while Delta stores `string`
+- The existence check is one Spark job with minimal overhead (~2-5 seconds) vs. minutes of wasted work
+- The skip guard is compatible with `replaceWhere` idempotency — new data is still overwritten correctly
+- For metadata tables (competitions, teams) that are small and change rarely, a hash comparison or row count check can skip the overwrite
+
+**Common variations:**
+
+| Source Type | Skip Guard Strategy |
+|-------------|-------------------|
+| Per-match data (events, tracking) | Check `match_id` against existing partition keys |
+| Per-competition data (season tables) | Check `competition_id` or `(competition_id, season_id)` |
+| Immutable reference data (players, teams) | Row count comparison or content hash |
+| External file downloads (GitHub, S3) | Cache to local/cloud storage on first download; check file existence before re-downloading |
+
+**Audit checklist for each ingestion module:**
+
+- [ ] Does `main()` query the target table before entering the fetch loop?
+- [ ] Does it short-circuit (return early) when all partitions exist?
+- [ ] Are metadata table writes (competitions, matches lists) also guarded?
+- [ ] Are HTTP downloads cached for immutable sources?
+- [ ] How many operations execute on a no-op run? (Target: <5 seconds)
+
 ### When Full Rebuild Is Correct
 
 | Scenario | Rationale |
@@ -935,6 +1005,10 @@ When reviewing a loop that calls a function N times:
 | No dead letter handling | Silent data loss | Quarantine failed records with metadata |
 | Skewed joins without mitigation | Straggler tasks dominate | Salt keys or broadcast joins |
 | Redundant setup in per-item function call | N × setup_cost wasted | Hoist shared setup, batch inputs, or cache |
+| Ingestion no-op waste | Minutes to hours of wasted compute, network, and Delta I/O on every scheduled run | Add skip guard: query target table for existing partitions, short-circuit when nothing is new |
+| Unconditional source download | Network I/O for data already in Delta | Check target partition exists before downloading source |
+| Multi-pass file parsing | 2x I/O for same file | Merge extraction into single pass |
+| Missing download cache for static sources | Repeated downloads of immutable data from GitHub/S3/CDN | Cache to UC Volume or local storage on first download |
 
 ## Best Practices
 
@@ -953,3 +1027,6 @@ When reviewing a loop that calls a function N times:
 - Hoist shared setup out of per-item loops — repeated team splits, index builds, and model loads are free speedups
 - Estimate pipeline cost per run — make cost visible to drive optimization decisions
 - Use model selection (`dbt run --select`) for iteration — avoid running the full DAG
+- Add skip guards to every ingestion pipeline — check existing partitions before fetching/parsing/writing; no-op runs should complete in seconds, not minutes
+- Cache immutable source downloads — GitHub releases, Figshare ZIPs, and static API endpoints don't change between runs; download once, read from cache thereafter
+- Audit ingestion no-op cost explicitly — count HTTP requests, file parses, `df.count()` calls, and Delta writes that execute when nothing is new; this is the single highest-ROI optimization for scheduled pipelines

@@ -150,6 +150,46 @@ Scan all source files for these patterns. Each match requires manual review — 
 
 This is the network equivalent of N+1 database queries. Common in data ingestion pipelines that fetch per-record or per-match data from REST APIs. The fix is typically batch endpoints, concurrent requests (`asyncio`/`httpx.AsyncClient`/goroutine fan-out), or Scatter-Gather patterns.
 
+#### Ingestion no-op waste anti-patterns
+
+Ingestion pipelines that unconditionally re-fetch, re-parse, and re-write data even when nothing has changed. Unlike compute pipelines (which typically have incremental skip guards), ingestion layers are often written for correctness (idempotent `replaceWhere`) without any check for whether the data already exists. On scheduled runs, this turns every no-op into a full re-ingest, wasting minutes to hours of compute, network, and Delta transaction overhead.
+
+**Structural analysis — not just grep:** These anti-patterns require understanding the pipeline's control flow, not just matching a regex. For each ingestion module, trace the `main()` function and answer:
+1. Does it check whether data already exists in the target table before fetching from the source?
+2. If all data exists, does it short-circuit (return early) or continue with fetch/parse/write?
+3. How many HTTP requests, file reads, `df.count()` calls, and Delta writes occur on a no-op run?
+
+| Language | Pattern | Issue | Severity |
+|----------|---------|-------|----------|
+| Python/Spark | Ingestion pipeline with `write_delta_table()` or `replaceWhere` but no preceding check against `spark.table()` or `spark.catalog.tableExists()` to skip already-ingested partitions | Missing incremental skip guard — every run re-fetches, re-parses, and re-writes all data regardless of whether it changed | High |
+| Python | `fetch_url\(` or `requests\.get\(` for data source files inside a loop without first checking if the target partition exists in Delta | Unconditional download — network I/O wasted on data that will be overwritten with identical content | High |
+| Python | `ET\.parse\(` or `ET\.iterparse\(` on large XML/JSON files without checking if target partition exists | Unconditional parse — CPU-intensive parsing of files whose data is already in Delta | High |
+| Python/Spark | Multiple `validate_dataframe()` → `df.count()` calls that execute on every run even when no new data exists | Unnecessary Spark DAG execution — each `df.count()` triggers a full Spark job with scheduling overhead (1-3 seconds on serverless) | Medium |
+| Python/Spark | `write_delta_table(..., replace_where=...)` executed unconditionally for partitions whose data has not changed | Unnecessary Delta transaction — creates new data files, transaction log entries, and metadata even for identical data | Medium |
+| Python | Third-party library data fetcher (e.g., `statsbombpy`, `kloppy`) called unconditionally inside a loop without skip guard | Library-mediated download — the HTTP calls are hidden inside the library but still hit the network on every run | High |
+| Python | Sequential `for` loop over all data sources (matches, competitions, files) where the loop body downloads + writes each one, but no early termination when all are already loaded | Sequential no-op loop — wall clock scales linearly with source count even when there is nothing to do | High |
+
+**The fix pattern** (established in compute pipelines, must be applied to ingestion):
+
+```python
+existing: set[str] = set()
+full_table = f"{catalog}.{schema}.{table_name}"
+if spark.catalog.tableExists(full_table):
+    existing = {
+        str(row["partition_key"])
+        for row in spark.table(full_table)
+        .select("partition_key").distinct().collect()
+    }
+new_ids = [pid for pid in all_ids if str(pid) not in existing]
+if not new_ids:
+    logger.info("All %d partitions already ingested — skipping", len(existing))
+    return
+```
+
+**Expected impact:** No-op runs that currently take 5-36 minutes per pipeline drop to <30 seconds (just the existence check).
+
+**Audit instruction:** For every ingestion module (not compute/analytics), verify that this pattern or an equivalent exists. If the pipeline unconditionally re-downloads and re-writes on every scheduled run, flag it as High severity. Count the total HTTP requests, `df.count()` calls, and Delta writes that occur on a no-op run and include these numbers in the finding.
+
 #### Logging overhead anti-patterns
 
 | Language | Pattern | Issue | Severity |
@@ -563,6 +603,8 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 - What storage format is appropriate? (Parquet for analytics, Delta/Iceberg for updates)
 - How will data skew be detected and mitigated?
 - What dead letter handling is needed for failed records?
+- How will ingestion pipelines detect existing data and short-circuit on no-op runs? (skip guards)
+- For large data sources (>1 GB per record/file), how will data be ingested without loading entirely into driver memory? (streaming download, Spark-native readers)
 
 **Audit mode:**
 
@@ -580,6 +622,10 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Idempotency | Pipeline not safe to re-run (produces duplicates or corrupts state) | High |
 | Dead letter handling | Failed records silently dropped instead of quarantined | High |
 | Row-by-row processing | Python loops over DataFrames instead of vectorized operations | High |
+| Ingestion no-op waste | Ingestion pipeline unconditionally re-fetches, re-parses, and re-writes all data on every scheduled run — even when all data already exists in the target table. Must check existing partitions and short-circuit. See Phase 0 "Ingestion no-op waste anti-patterns" for the fix pattern and audit instructions | High |
+| Unconditional source download | Data source files (HTTP, cloud storage, UC Volume) downloaded on every run without first checking if the target Delta partition already exists. Trace the full `main()` flow: count HTTP requests, file reads, and Delta writes that execute on a no-op run where nothing is new | High |
+| Multi-pass file parsing | Same large file (XML, JSON, CSV) parsed multiple times when a single pass could extract all needed data. Common with `ET.iterparse` where ball and player data are extracted in separate passes over the same file | Medium |
+| Missing download cache for static sources | Pipeline downloads files from external URLs (GitHub, Figshare, S3) on every run when the source data is immutable. Should cache to local or cloud storage (UC Volume) on first download and read from cache thereafter | Medium |
 | Batch accumulation before write | Collecting all partitions/files into memory (via `pd.concat()` list, dict accumulation, or loading all files) before a single write operation instead of per-partition write-and-release (Splitter/EIP pattern) | Critical |
 | Full-table `.toPandas()` without filter | `spark.table(x).toPandas()` pulling entire tables to driver memory without `.filter()`, `.select()`, or `.limit()` — must filter to bounded subsets first | Critical |
 | Missing partition-level release | Processing multiple data partitions without `del df` + `gc.collect()` between iterations; peak memory = sum of all partitions instead of max single partition | High |
@@ -618,6 +664,27 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Python | `for i in range\(len\(df\)\):` calling a function that accepts DataFrame + scalar from that row | Potential batched-function-call optimization — pass all scalars at once via vectorized call |
 | Python | `def .*\(.*df.*,.*x.*float.*,.*y.*float` (function accepting DataFrame + single point) | Candidate for batch version accepting `(n, 2)` array of points instead of scalar pair |
 | Python | Same `groupby\(\)` or clustering/indexing call repeated inside a loop where input data doesn't change between iterations | Cache-eligible: pre-compute once outside loop or cache by input hash |
+| Python/Spark | `write_delta_table\(` or `\.saveAsTable\(` or `replaceWhere` inside a `for` loop without a preceding `spark\.catalog\.tableExists\(` or `spark\.table\(.*\)\.select\(.*\)\.distinct\(\)\.collect\(\)` guard | Unconditional write — ingestion no-op waste; add skip guard before fetch+write loop |
+| Python | `def main\(` in ingestion module where the function body contains `fetch_url\(` or `requests\.get\(` or library data fetcher (e.g., `sb\.matches\(`, `load_open_data\(`) but no `spark\.catalog\.tableExists` or equivalent existence check | Missing ingestion skip guard — every scheduled run re-downloads all data |
+| Python | `ET\.iterparse\(` or `ET\.parse\(` called multiple times on the same file path within one function | Multi-pass XML parsing — merge into single pass to halve I/O |
+| Python | `validate_dataframe\(` called inside a loop that runs on every no-op invocation | Unnecessary Spark DAG per iteration — skip the loop entirely when no new data exists |
+
+#### Ingestion no-op audit procedure
+
+In addition to the grep patterns above, **perform a structural analysis of every ingestion module** (files whose purpose is fetching data from external sources and writing to bronze/raw Delta tables). For each module:
+
+1. **Trace the `main()` function** end-to-end and identify the outermost loop over data sources (matches, competitions, files, etc.)
+2. **Count no-op operations**: How many HTTP requests, file parses, `df.count()` calls, and Delta writes execute when ALL data already exists?
+3. **Check for skip guard**: Does the module query the target Delta table for existing partition keys before entering the fetch loop?
+4. **Check for early termination**: If all partitions exist, does the module return immediately or continue through the loop?
+5. **Check for partial skip**: Even if some partitions are skipped, are there operations (like metadata table overwrites) that still execute unconditionally?
+
+**Report format for each ingestion module:**
+
+| Module | No-op HTTP calls | No-op file parses | No-op `df.count()` | No-op Delta writes | Has skip guard? | Estimated no-op wall clock |
+|--------|------------------|--------------------|---------------------|---------------------|-----------------|---------------------------|
+
+**Severity:** Any ingestion module where no-op wall clock exceeds 60 seconds is a High finding. Any module where no-op wall clock exceeds 5 minutes is a Critical finding if the pipeline runs on a schedule (daily/hourly).
 
 #### Exhaustive `.iterrows()` / `.apply(axis=1)` enumeration
 

@@ -8,7 +8,7 @@
     {
       "name": "mad-scientist-skills",
       "description": "C4 architecture diagrams (Structurizr DSL), two-tier security auditing (STRIDE, OWASP Top 10, web headers, API security, auth/session, supply chain), two-tier observability auditing (beta: instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, SLIs/SLOs), optimization auditing (algorithm efficiency, database queries, caching, concurrency, pipelines, distributed execution, cloud cost, profiling), and pre-commit quality gate with architecture diagram generation",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "author": {
         "name": "Karsten S. Nielsen"
       },
