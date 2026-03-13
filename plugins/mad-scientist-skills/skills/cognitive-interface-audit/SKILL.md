@@ -720,10 +720,12 @@ Present concrete findings with cognitive impact assessment:
 
 ### Executive Summary
 - Total findings: X
-- Critical: X | High: X | Medium: X | Low: X
+- Critical: X (Y instances) | High: X | Medium: X | Low: X
 - Fixed during audit: X
 - Remaining: X
 - Primary cognitive risk: [summary of biggest user-facing issue]
+
+> **Counting rule:** When multiple phase-level findings consolidate into fewer root-cause findings, the summary MUST show both counts — e.g., "Critical: 2 findings (6 instances)". The reader will encounter the instance-level detail first (Phase 0 tables) before reaching the consolidated view (Phase 9). Stating only the consolidated count creates a Gulf of Evaluation: the reader counts N severity rows in a table and cannot reconcile with a smaller summary number. This is exactly the kind of System 1 / System 2 conflict this skill audits for.
 
 ### Findings
 | # | Severity | Phase | File:Line | Description | Framework | Status |
@@ -793,3 +795,4 @@ Present concrete findings with cognitive impact assessment:
 - **Scope awareness.** Don't flag framework-managed UX as a finding (e.g., Streamlit's built-in error handling, React's form state management) unless the developer has overridden it poorly.
 - **Prioritize.** Fix Critical and High findings. Track Medium and Low in the backlog. A perfect Phase 7 (accessibility) doesn't matter if Phase 2 (task model) has Critical misalignments.
 - **The interface should be invisible.** The best outcome of this audit is that users complete tasks without thinking about the interface at all. Every finding should point toward that goal.
+- **Report self-consistency (eat your own dog food).** The audit report is itself an interface — it has readers, mental models, and Gulfs of Evaluation. Before finalizing, verify: (1) every count in the Executive Summary is reconcilable with the detailed tables the reader encounters first, (2) severity labels in phase tables match their consolidated severity in the findings table (or escalation is explicitly noted), (3) no number requires the reader to "just trust the author's grouping logic" without explanation. If the report would fail its own Phase 5 (Dual-Process) or Phase 3 (Consistency) checks, fix it.
