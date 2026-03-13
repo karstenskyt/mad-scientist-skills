@@ -9,7 +9,7 @@ A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/cla
 | Skill | Description | Invoke |
 |-------|-------------|--------|
 | **c4** | C4 architecture diagrams using Structurizr DSL — self-contained HTML with embedded SVGs | `/mad-scientist-skills:c4` |
-| **cognitive-interface-audit** | Single-tier cognitive interface audit — GOMS task models, Wood 7-layer error tolerance, Gergle visual grounding, NASA-TLX cognitive load, accessibility (beta) | `/mad-scientist-skills:cognitive-interface-audit` |
+| **cognitive-interface-audit** | Single-tier cognitive interface audit — GOMS, Norman's Gulfs, Wood 7-layer error tolerance, Gergle visual grounding, NASA-TLX, Dual-Process Theory, Cleveland & McGill, Trust Calibration, Information Foraging, Gestalt, Ecological Interface Design, accessibility | `/mad-scientist-skills:cognitive-interface-audit` |
 | **final-review** | Pre-commit quality gate — code review, documentation check, and architecture diagram generation | `/mad-scientist-skills:final-review` |
 | **observability-audit** | Two-tier observability audit (Standard/Enterprise) — instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, SLIs/SLOs (beta) | `/mad-scientist-skills:observability-audit` |
 | **optimization-audit** | Single-tier optimization audit — algorithm efficiency, database queries, caching, concurrency, pipelines, distributed execution, cloud cost, profiling | `/mad-scientist-skills:optimization-audit` |
@@ -79,9 +79,9 @@ Ask naturally ("Create a C4 diagram for this project") or invoke directly:
 </details>
 
 <details>
-<summary><strong>cognitive-interface-audit</strong> — Cognitive Interface Audit (beta)</summary>
+<summary><strong>cognitive-interface-audit</strong> — Cognitive Interface Audit</summary>
 
-Two-mode, single-tier cognitive interface analysis: **planning** (before UI) and **audit** (existing UI). Grounded in three academic research threads: GOMS task modeling (Card, Moran & Newell), error-tolerant design (Wood & Byrne), and visual grounding theory (Gergle, Kraut & Fussell).
+Two-mode, single-tier cognitive interface analysis: **planning** (before UI) and **audit** (existing UI). Grounded in seven academic research threads: GOMS task modeling (Card, Moran & Newell), error-tolerant design (Wood & Byrne), visual grounding theory (Gergle, Kraut & Fussell), Norman's Gulfs of Execution/Evaluation, Dual-Process Theory (Kahneman), Cleveland & McGill visual encoding effectiveness, Lee & See Trust Calibration, Pirolli & Card Information Foraging, Gestalt principles (Wertheimer), and Vicente & Rasmussen Ecological Interface Design.
 
 ### Coverage
 
@@ -93,7 +93,7 @@ Two-mode, single-tier cognitive interface analysis: **planning** (before UI) and
 | 3 | Consistency & convention | | x |
 | 4 | Error tolerance (Wood 7-layer defense, Rasmussen SRK) | x | x |
 | 5 | Cognitive load assessment (NASA-TLX, Sweller CLT) | x | x |
-| 6 | Visual grounding & feedback (Gergle grounding theory) | | x |
+| 6 | Visual grounding, feedback & constraint visibility (Gergle grounding theory, Vicente & Rasmussen EID) | | x |
 | 7 | Accessibility & inclusion (WCAG 2.1 AA, demographic bias) | | x |
 | 8 | Information architecture | | x |
 | 9 | Findings report | x | x |
@@ -102,10 +102,10 @@ Two-mode, single-tier cognitive interface analysis: **planning** (before UI) and
 
 | Template | Purpose |
 |----------|---------|
-| `task-model-analysis.md` | GOMS methodology, user expertise spectrum, task decomposition worksheet |
+| `task-model-analysis.md` | GOMS methodology, Norman's Gulfs, cognitive walkthrough, Dual-Process Theory, Cleveland & McGill visual encoding, user expertise spectrum |
 | `error-tolerance-checklist.md` | Wood 7-layer defense, Rasmussen SRK, Reason's error mechanisms |
-| `cognitive-load-assessment.md` | NASA-TLX scoring, Sweller CLT, information density heuristics |
-| `visual-grounding-checklist.md` | Gergle grounding theory, feedback latency, Joint Action Storyboards |
+| `cognitive-load-assessment.md` | NASA-TLX scoring, Sweller CLT, information density heuristics, chart scalability/degradation |
+| `visual-grounding-checklist.md` | Gergle grounding theory, feedback latency, Joint Action Storyboards, Trust Calibration, EID constraint visibility |
 | `accessibility-inclusion.md` | WCAG 2.1 AA checklist, demographic bias, assistive technology |
 
 ### Usage
@@ -301,6 +301,10 @@ The skill is available via `/mad-scientist-skills:my-new-skill` on any machine w
 This project is, and always will be, free and open source. If you find value in this work, I encourage you to consider a donation to **Scottish Football for Rwanda** rather than any personal gift. I am volunteering as a goalkeeper coach in Rwanda in June 2026 — 100% of donations go directly to local kids, coaches, and community organizations.
 
 [![Donate](https://img.shields.io/badge/Donate-JustGiving-E42C64?style=flat-square)](https://www.justgiving.com/page/gk-coach-karsten-for-rwanda)
+
+## Academic Attribution
+
+This project's audit methodologies are grounded in published academic research. See [`NOTICE.md`](NOTICE.md) for full citations of all referenced frameworks, theories, and algorithms.
 
 ## License
 

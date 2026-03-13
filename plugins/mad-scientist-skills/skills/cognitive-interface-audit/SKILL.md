@@ -1,6 +1,6 @@
 ---
 name: cognitive-interface-audit
-description: Comprehensive cognitive interface audit with two modes and a single tier. Planning mode designs task models, user expertise mapping, and error tolerance strategy. Audit mode evaluates mental model alignment, consistency, error tolerance (Wood 7-layer defense), cognitive load (NASA-TLX), visual grounding (Gergle), and accessibility. Single tier — cognitive evaluation tools are methodology-based, not software-licensed. Grounded in GOMS (Card, Moran & Newell), error-tolerant design (Wood & Byrne), and visual grounding theory (Gergle, Kraut & Fussell). Use when asked to "UI audit", "UX review", "cognitive audit", "mental model check", "usability review", or "interface audit".
+description: Comprehensive cognitive interface audit with two modes and a single tier. Planning mode designs task models, user expertise mapping, and error tolerance strategy. Audit mode evaluates mental model alignment (Norman's Gulfs), consistency (Gestalt), error tolerance (Wood 7-layer defense), cognitive load (NASA-TLX, Dual-Process), visual grounding (Gergle), trust calibration (Lee & See), data visualization effectiveness (Cleveland & McGill), ecological constraint visibility (Vicente & Rasmussen EID), and accessibility. Single tier — cognitive evaluation tools are methodology-based, not software-licensed. Grounded in GOMS (Card, Moran & Newell), error-tolerant design (Wood & Byrne), visual grounding theory (Gergle, Kraut & Fussell), information foraging (Pirolli & Card), and ecological interface design (Vicente & Rasmussen). Use when asked to "UI audit", "UX review", "cognitive audit", "mental model check", "usability review", or "interface audit".
 ---
 
 # Cognitive Interface Audit
@@ -17,18 +17,27 @@ A comprehensive cognitive interface audit with two modes and a single tier:
 
 ## Academic foundations
 
-This skill synthesizes three research threads into a single audit methodology:
+This skill synthesizes seven research threads into a single audit methodology:
 
 1. **Task Model & Error Tolerance** (Card, Moran & Newell 1983; Wood & Byrne 2002; Rasmussen 1983) — GOMS models predict how users decompose tasks. Wood's 7-layer defense framework predicts where errors occur and what defenses are needed at each stage. Rasmussen's SRK framework classifies errors by cognitive level (skill-based slips, rule-based misapplication, knowledge-based wrong mental model), each requiring different design countermeasures.
 
 2. **Visual Grounding & Common Ground** (Gergle, Kraut & Fussell 2004/2013; Gergle et al. 2021) — Shared visual information affects task performance through two distinct mechanisms: situation awareness (does the user understand system state?) and conversational grounding (does the interface provide enough shared context?). Not just availability but the *form* of visual information differentially affects performance. The Joint Action Storyboard framework maps each interaction to its grounding cost.
 
-3. **Cognitive Load** (Sweller 1988; Hart & Staveland 1988; Madsen 2021) — Every interface decision either consumes or conserves working memory. NASA-TLX provides structured evaluation across 6 dimensions. Sweller's distinction between intrinsic load (inherent task complexity), extraneous load (poor design), and germane load (productive learning) guides where to invest and where to cut.
+3. **Cognitive Load** (Sweller 1988; Hart & Staveland 1988; Kahneman 2011) — Every interface decision either consumes or conserves working memory. NASA-TLX provides structured evaluation across 6 dimensions. Sweller's distinction between intrinsic load (inherent task complexity), extraneous load (poor design), and germane load (productive learning) guides where to invest and where to cut. Kahneman's Dual-Process Theory (System 1/System 2) identifies where interfaces force slow, deliberate processing when fast, intuitive processing could suffice.
+
+4. **Gulf Analysis & Action Theory** (Norman 1988/2013) — Norman's Gulfs of Execution and Evaluation provide a structural diagnostic for interface fit. The Gulf of Execution measures the gap between what the user wants to do and what the interface lets them do. The Gulf of Evaluation measures the gap between system state and user understanding. Wider gulfs mean harder-to-use interfaces.
+
+5. **Information Foraging** (Pirolli & Card 1999) — Users follow "information scent" — cues that predict whether a navigation path leads to their goal. Weak scent (ambiguous labels, implementation-oriented vocabulary) causes users to choose wrong paths or abandon the interface. Scent analysis evaluates navigation labels, cross-page links, and between-patch travel cost.
+
+6. **Trust Calibration** (Lee & See 2004) — For interfaces displaying model-derived or automated outputs, users must develop *appropriate* trust — neither over-trusting (blind acceptance) nor under-trusting (ignoring valid outputs). Trust calibration requires visibility of model provenance, uncertainty, sample size, and known limitations.
+
+7. **Ecological Interface Design** (Vicente & Rasmussen 1992) — EID argues that interfaces should make the work domain's constraints and relationships visible, not just the system's controls. The abstraction hierarchy (functional purpose → abstract function → generalized function → physical function → physical form) determines what users need to see at each level. When constraints are invisible (e.g., "why are only 20 matches available?"), users cannot calibrate their expectations or detect anomalies.
 
 **Convergence:** Brinck, Gergle & Wood, *Usability for the Web: Designing Web Sites that Work* (Morgan Kaufmann, 2001) — the two primary research threads (Wood's error tolerance, Gergle's grounding) converge in a single prior collaboration: a "pervasive usability" framework with stage-by-stage checklists.
 
 **Key references:**
 - Card, Moran & Newell, *The Psychology of Human-Computer Interaction* (1983) — GOMS
+- Norman, *The Design of Everyday Things* (1988; revised 2013) — Gulf of Execution/Evaluation
 - Wood & Byrne, "A Cognitive Approach to Designing Human Error Tolerant Interfaces" (2002) — 7-layer defense
 - Wood, "Modeling Human Error for Experimentation, Training, and Error-Tolerant Design" (IITSEC 2002)
 - Gergle, Kraut & Fussell, "Using Visual Information for Grounding and Awareness" (*HCI*, 2013)
@@ -37,6 +46,15 @@ This skill synthesizes three research threads into a single audit methodology:
 - Rasmussen, "Skills, Rules, and Knowledge" (*IEEE SMC*, 1983) — SRK framework
 - Hart & Staveland, "Development of NASA-TLX" (1988) — cognitive load measurement
 - Sweller, "Cognitive Load During Problem Solving" (*Cognitive Science*, 1988)
+- Kahneman, *Thinking, Fast and Slow* (2011) — Dual-Process Theory (System 1/System 2)
+- Cleveland & McGill, "Graphical Perception" (*JASA*, 1984) — visual encoding effectiveness ranking
+- Pirolli & Card, "Information Foraging" (*Psychological Review*, 1999)
+- Lee & See, "Trust in Automation" (*Human Factors*, 2004) — trust calibration
+- Wertheimer, *Laws of Organization in Perceptual Forms* (1923) — Gestalt principles
+- Hutchins, *Cognition in the Wild* (1995) — distributed cognition
+- Vicente & Rasmussen, "Ecological Interface Design: Theoretical Foundations" (*IEEE SMC*, 1992) — EID
+- Burns & Hajdukiewicz, *Ecological Interface Design* (CRC Press, 2004)
+- Miller, "The Magical Number Seven, Plus or Minus Two" (*Psychological Review*, 1956) — working memory limits
 - Nielsen, "10 Usability Heuristics for User Interface Design" (1994)
 
 ## When to use this skill
@@ -117,6 +135,18 @@ Fast grep-based scan for common cognitive interface anti-patterns. Runs first to
 | `<button` with only an icon (no `aria-label` and no visible text) | Unlabeled action — user must guess the icon's meaning | High |
 | `disabled={true}` without tooltip or explanation of why | Disabled control without explanation — user cannot learn requirement | Medium |
 
+#### Gradio patterns
+
+| Pattern | Issue | Severity |
+|---------|-------|----------|
+| `gr.Dropdown` with >100 choices and no `filterable=True` | Option overload without search — user must scroll through hundreds of items | Medium |
+| `fn=` callback with no corresponding `gr.update` or loading state | Missing processing feedback — user doesn't know computation is running | High |
+| Multiple `gr.Tab` objects referencing the same function without distinguishing state | Shared state confusion — tabs appear independent but mutate shared state | High |
+| `gr.Plot` or `gr.Image` without `label=` parameter | Unlabeled visualization — screen reader and cognitive accessibility gap | Medium |
+| `gr.Blocks` with >6 `gr.Tab` children | Tab overload — exceeds working memory chunk limit | Medium |
+| `gr.Markdown` with >3 paragraphs of instruction before first interactive element | Wall of text before action — users skip instructions and guess | Medium |
+| HF Space with `gr.Blocks` or `gr.Interface` on free-tier (zero-GPU or CPU) and no startup notification or cold-start warning | Cold-start container wake-up takes 30-60s with generic "Building" status — user has no ETA, no retry affordance, no explanation of why it's slow | Medium |
+
 #### General UI patterns (any framework)
 
 | Pattern | Issue | Severity |
@@ -129,6 +159,8 @@ Fast grep-based scan for common cognitive interface anti-patterns. Runs first to
 | `cursor: pointer` on non-interactive elements | False affordance — element looks clickable but isn't | Medium |
 | Navigation menu items without visual indication of current page/section | Missing "you are here" indicator — user loses orientation | High |
 | Tooltip-only labels on primary actions (not supplementary information) | Essential information hidden behind hover — mobile-hostile, discoverable only by accident | Medium |
+| Numeric metric display without interpretive context (no delta, no reference value, no "good/bad" indication) | Metrics without context — user sees a number but cannot judge its meaning (Gulf of Evaluation) | High |
+| Counter-intuitive scale direction (lower value = more intense/better) without direction indicator | Scale direction mismatch — System 1 expects "higher = more" but metric inverts this (Dual-Process) | Medium |
 
 For each finding: record file path, line number, pattern matched, severity, the Wood defense layer violated (if applicable), and whether it is a true positive or intentional usage.
 
@@ -155,6 +187,9 @@ Explore the project to understand its cognitive interface surface:
   - **External dependencies**: Does the UI depend on external data, APIs, or other systems that introduce latency or failure modes?
   - **Collaborative features**: Do multiple users interact with the same data? (affects grounding requirements)
   - **Domain vocabulary**: What specialized terms does the interface use? Do they match the users' domain language?
+  - **Multiple surfaces**: Does the project span multiple platforms (web app + mobile, main app + demo + documentation, HF Hub + Streamlit)? If so, map all surfaces and their roles — multi-surface coherence will be evaluated in Phase 8.
+  - **Domain-specific cognitive demands**: Identify 3-5 cognitive demands unique to this domain (e.g., spatial reasoning for maps, statistical literacy for analytics, temporal reasoning for timelines). These inform what the interface must support beyond generic usability.
+  - **Constraint landscape** (EID): What constraints determine data availability? (e.g., only certain competitions have tracking data, model outputs are scoped to training data). Map constraints that users need to understand to avoid false expectations. These are evaluated in Phase 6.
 
 **Output:** Cognitive surface summary listing all pages, user types, core tasks, and identified risk areas for deeper analysis.
 
@@ -185,6 +220,35 @@ Load `templates/task-model-analysis.md` for the full GOMS methodology reference,
 | Progressive complexity | Can novices complete core tasks without encountering power-user features? | High |
 | Chunk boundaries | Are related operations grouped together? Do logical chunks fit within working memory (4 +/- 1 items per group)? | Medium |
 | Interruption recovery | If the user is interrupted mid-task, can they resume without starting over? | High |
+| Global search | For systems with >5 distinct entities (players, products, documents), can users search by name instead of navigating filter cascades? | High |
+
+#### Norman's Gulf Analysis
+
+For each core task, evaluate the two structural gaps between user and interface (Norman 1988/2013):
+
+| Gulf | Question | Narrow (good) | Wide (finding) |
+|------|---------|---------------|----------------|
+| **Execution** | Can the user express their intention using the available controls? | User's action maps directly to system action (search by name, click to view) | User must translate their goal through multiple indirections (select competition → select season → select team → find player) |
+| **Evaluation** | Can the user understand the system's response? | System state is immediately interpretable ("Player A is 23% better than average") | User must translate system output to derive meaning ("cosine distance: 0.23" — is that good?) |
+
+**Gulf width diagnostic:** If completing a core task requires >3 translation steps between user intent and interface action, the Gulf of Execution is too wide. If understanding a core output requires domain expertise the target user doesn't have, the Gulf of Evaluation is too wide.
+
+Load `templates/task-model-analysis.md` for the full Norman's Gulf worksheet and cognitive walkthrough template.
+
+#### Cognitive Walkthrough (critical tasks only)
+
+For the top 2-3 most critical user tasks identified in Discovery, walk through the complete scenario step by step. Each walkthrough MUST include at least 5 steps with the 4-question protocol. At least one walkthrough MUST be from a kiosk/first-time user perspective. This catches **compound issues** — interaction effects between individually-acceptable design decisions that only emerge in sequence.
+
+For each step, answer four questions:
+1. Will the user know what to do? (Gulf of Execution)
+2. Will they see the correct action is available?
+3. Will they associate the correct action with their goal?
+4. After performing the action, will they understand the feedback? (Gulf of Evaluation)
+
+Record the walkthrough as:
+
+| Step | User Goal | User Action | System Response | Gulf Issue (if any) |
+|------|-----------|-------------|-----------------|---------------------|
 
 #### User expertise spectrum
 
@@ -197,6 +261,16 @@ Every interface serves users across a spectrum. The audit must evaluate task mod
 | **Power user** | Expert model. Has compiled methods for all common tasks | Low operator count, fast selection rules, keyboard shortcuts, batch operations | Don't slow them down. Provide shortcuts, keyboard navigation, bulk actions, customizable defaults |
 
 The interface must **degrade gracefully** across all three levels. A power-user shortcut must not confuse a first-timer. A first-timer's guided flow must not impede a power user.
+
+#### Expert Blind Spot Audit
+
+For each domain-specific metric or term displayed in the interface, complete this structured check:
+
+| Metric/Term | Domain-Only User (no data science) | Data-Science-Only User (no domain) | Both Fail? | Required Fix |
+|-------------|----|----|----|----|
+| [metric] | Can interpret? Y/N | Can interpret? Y/N | If either N | Tooltip / inline explanation / contextual help |
+
+If either audience cannot interpret a displayed metric, it requires at minimum: (1) a tooltip or inline explanation defining the term, (2) a reference value or interpretive label, or (3) a link to documentation. Metrics that fail for *both* audiences are Critical — they are opaque to everyone except the designer.
 
 **Output:** Task model analysis for each core task, with expertise spectrum evaluation and identified misalignment points.
 
@@ -220,6 +294,19 @@ Evaluate whether the interface uses the same patterns for the same operations, a
 | Empty states | "No data" scenarios handled consistently across all views | Medium |
 | Navigation patterns | Back/forward/breadcrumb behavior is predictable and consistent | High |
 | Keyboard shortcuts | If shortcuts exist, they follow platform conventions (Ctrl+S = save, Escape = cancel/close) | Medium |
+| Sidebar spatial stability | Do sidebar controls remain stable, or do they appear/disappear based on main-area selections (e.g., radio button changes which sidebar widgets are visible)? Appearing/disappearing controls violate spatial stability and break developing motor patterns (Gestalt Common Fate) | High |
+
+#### Gestalt perceptual checks
+
+Apply Gestalt principles (Wertheimer 1923) as explicit consistency diagnostics. These principles describe how users *perceive* grouping and relationships — violations cause perceptual confusion independent of logical correctness.
+
+| Principle | Audit Check | Violation Example | Severity |
+|-----------|------------|-------------------|----------|
+| **Proximity** | Are related controls physically grouped together? | Filter controls split between sidebar and main area for the same data view | High |
+| **Similarity** | Do visually identical elements behave identically? | Two messages use the same `st.info` styling but one means "please select" and the other means "no data exists" | High |
+| **Common Region** | Are related items enclosed in a shared container? | Tab content and its associated filters lack a shared visual boundary | Medium |
+| **Figure-Ground** | Can the user distinguish interactive elements from background? | Low-contrast buttons or links that blend into surrounding text | Medium |
+| **Continuity** | Do related items follow a visual flow? | Navigation items arranged in a way that breaks reading order | Low |
 
 #### Grep patterns for consistency violations
 
@@ -301,7 +388,7 @@ Load `templates/cognitive-load-assessment.md` for the full NASA-TLX scoring guid
 | Information density | Distinct data points visible simultaneously | >30 distinct values per viewport | Medium |
 | Visual hierarchy levels | Number of distinct heading/text sizes used on one screen | >4 levels | Medium |
 | Required recall | Information user must remember from a previous screen to complete current task | Any cross-screen recall without reference | High |
-| Simultaneous comparisons | Number of items user must compare at once | >7 items (Miller's Law) | Medium |
+| Simultaneous comparisons | Number of items user must compare at once | >7 items (Miller 1956) | Medium |
 | Mode indicators | Number of active modes/states the user must track | >3 simultaneous modes | High |
 | Text density | Paragraph-length instructions or descriptions | >3 sentences of instruction per action | Medium |
 | Data table columns | Visible columns in a data table | >10 columns without horizontal scroll | Medium |
@@ -328,15 +415,65 @@ When deeper evaluation is warranted, score each critical workflow on 6 dimension
 | **Extraneous** | Poor design (interface-determined) | **Eliminate.** This is the audit's primary target |
 | **Germane** | Productive learning (schema-building) | **Maximize.** Consistent patterns help users build accurate mental models |
 
+#### Dual-Process Theory (Kahneman)
+
+Evaluate whether the interface engages System 2 (slow, deliberate, effortful) when System 1 (fast, intuitive, automatic) could suffice:
+
+| Check | System 2 Overload Indicator | Fix (shift to System 1) | Severity |
+|-------|----------------------------|-------------------------|----------|
+| Numeric outputs without interpretive cues | User must calculate whether "0.23" is good or bad | Add color bands, verbal labels ("above average"), or reference values | High |
+| Counter-intuitive scale direction | Lower value = more intense (e.g., PPDA), violating "higher = more" intuition | Add direction indicator (arrow, "lower is better" label) | Medium |
+| Raw identifiers instead of names | User must mentally map IDs to meaningful entities | Show human-readable names; provide ID on demand | Medium |
+| Derived values without showing derivation | User must trust an opaque calculation | Show formula, components, or "based on N matches" context | Medium |
+| Multiple units mixed without conversion | User must mentally convert between unit systems | Normalize to one system or show both with clear labels | Medium |
+
+#### Visual Encoding Effectiveness (Cleveland & McGill)
+
+For data-heavy interfaces, evaluate whether each visualization uses the perceptually appropriate encoding for its data relationship. Cleveland & McGill (1984) established a ranking of visual encodings by perceptual accuracy:
+
+| Rank | Encoding | Best For | Common Misuse |
+|------|----------|----------|---------------|
+| 1 | Position along common scale | Quantity comparison | — (most accurate) |
+| 2 | Position along non-aligned scales | Comparison with offset context | — |
+| 3 | Length | Magnitude comparison (bar charts) | Stacked bars where inner segments are hard to compare |
+| 4 | Angle / slope | Trends over time (line charts) | Radar/spider charts for precise comparison — angle encoding distorts perception |
+| 5 | Area | Approximate magnitude (treemaps, bubbles) | Pie charts — area + angle combination is perceptually poor |
+| 6 | Color saturation / hue | Categories or continuous spatial fields | Using color for quantitative comparison (hard to rank shades) |
+
+**Common violations to flag:**
+- Multiple metrics with incompatible scales on a shared axis (normalizing would fix)
+- Radar/spider charts used for precise comparison (parallel coordinates or grouped bar charts are perceptually superior)
+- Color as the sole differentiator for quantitative data (add text labels or position encoding)
+- 3D effects that add no informational dimension
+
+#### Chart Scalability / Degradation
+
+For charts that render variable-length data, evaluate whether the encoding degrades gracefully as item count increases:
+
+| Check | What to look for | Threshold | Severity |
+|-------|-----------------|-----------|----------|
+| Grouped bar chart readability | Do individual bars remain distinguishable as groups increase? | >8 groups: bars become slivers, labels overlap | Medium |
+| Legend overflow | Does the legend remain readable as series count increases? | >5 legend items: consider inline labels or small multiples | Medium |
+| Pie/donut chart slicing | Do small slices remain perceptible? | >5 categories: switch to horizontal bar chart | Medium |
+| Scatter plot overplotting | Do points remain distinguishable as data density increases? | >100 points in view: add opacity, jitter, or density contours | Low |
+| Label collision | Do axis labels, data labels, or annotations overlap at scale? | Any overlap at expected data volumes | Medium |
+
+Load `templates/cognitive-load-assessment.md` for the full Dual-Process and Cleveland & McGill reference with additional examples.
+
 **Output:** Cognitive load assessment per screen with dimension scores, threshold violations, and extraneous load reduction recommendations.
 
 ---
 
-### Phase 6: Visual Grounding & Feedback (Audit mode)
+### Phase 6: Visual Grounding, Feedback & Interpretation (Audit mode)
 
-Evaluate whether the interface provides sufficient visual grounding for situation awareness and efficient task completion.
+Evaluate whether the interface provides sufficient visual grounding for situation awareness, efficient task completion, and result interpretation. This phase distinguishes two cognitive processes:
 
-Load `templates/visual-grounding-checklist.md` for the full Gergle grounding theory reference, feedback latency thresholds, and Joint Action Storyboard methodology.
+- **Feedback** (Gergle): "Is the system working? What state is it in?" — mechanical grounding
+- **Interpretation** (Norman's Gulf of Evaluation + Trust Calibration): "What does this result mean? Can I trust it?" — semantic grounding
+
+Load `templates/visual-grounding-checklist.md` for the full Gergle grounding theory reference, feedback latency thresholds, Joint Action Storyboard methodology, and trust calibration checklist.
+
+#### Feedback checks (Gergle)
 
 | Check | What to look for | Severity if missing |
 |-------|-----------------|---------------------|
@@ -352,6 +489,44 @@ Load `templates/visual-grounding-checklist.md` for the full Gergle grounding the
 | Empty state messaging | When no data matches, the screen explains why and suggests next steps (not just a blank area) | High |
 | Data freshness | If data can be stale, the last-updated timestamp is visible | Medium |
 | Collaborative awareness | In multi-user contexts: who else is viewing/editing? Are changes by others visible in real-time? | High (if collaborative) |
+
+#### Interpretation checks (Norman + Lee & See)
+
+These checks evaluate whether users can *understand* and *trust* what the interface shows them — the Gulf of Evaluation:
+
+| Check | What to look for | Severity if missing |
+|-------|-----------------|---------------------|
+| Result interpretability | Can the user understand what a displayed value means without external reference? | High |
+| Calibration anchors | Are reference points provided for numeric outputs (e.g., "league average: 0.45", percentile rank)? | High |
+| Data coverage visibility | Does the user know what subset of the data universe they're seeing (e.g., "3 of 5 competitions loaded")? | Medium |
+| Scope indicators | Are aggregation boundaries clear (per-match vs per-season vs career)? | Medium |
+
+#### Constraint visibility (EID — Vicente & Rasmussen)
+
+Ecological Interface Design argues that users need to see the work domain's constraints, not just the system's controls. When constraints are invisible, users form incorrect mental models of what the data represents.
+
+| Check | What to look for | Severity if missing |
+|-------|-----------------|---------------------|
+| Data coverage explanation | Does the interface explain *why* certain data/options are unavailable? (e.g., "Tracking data available for 20 of 380 matches" vs silently showing only 20) | High |
+| Relationship visibility | Can users see how displayed metrics relate to each other without visiting multiple pages? (e.g., high VAEP correlation with DEFCON pressure) | Medium |
+| Means-ends traceability | Can users trace from outcome to cause through the interface? (e.g., match result ← tactical pattern ← player movement) | Medium |
+| Boundary explanation | When filtered/aggregated data shows unexpected results, does the interface explain the boundaries? (e.g., "Competition average based on 5 Bundesliga matches only") | High |
+| Absence visibility | Are important absences surfaced? (e.g., "No 360 freeze frames for this competition" rather than silently hiding the pitch control page) | Medium |
+
+#### Trust calibration (for model/ML interfaces)
+
+If the interface displays model-derived outputs (predictions, embeddings, similarity scores, recommendations, computed metrics), evaluate trust calibration (Lee & See 2004):
+
+| Check | What to look for | Severity if missing |
+|-------|-----------------|---------------------|
+| Model provenance | Can the user tell which model/algorithm produced this output? | Medium |
+| Uncertainty indication | Does the output show confidence bounds, ranges, or uncertainty? | High |
+| Sample size context | Does the user know how much data informs this output (e.g., "based on 23 matches")? | High |
+| Limitation visibility | Are known model limitations surfaced near the output? | Medium |
+| Calibration anchors | Are reference points provided (e.g., "average player similarity: 0.45")? | High |
+| Appropriate trust | Can the user develop neither too much trust (blind acceptance) nor too little (ignoring valid outputs)? | High |
+
+**Skip this section** for interfaces that display only user-entered data or simple lookups with no model/algorithm layer.
 
 #### Feedback latency thresholds (Gergle + Nielsen)
 
@@ -393,6 +568,7 @@ Load `templates/accessibility-inclusion.md` for the full WCAG 2.1 AA checklist, 
 | Text scaling | Interface remains usable at 200% browser zoom | Medium |
 | Reduced motion | Respects `prefers-reduced-motion` — no essential information conveyed only through animation | Medium |
 | Language clarity | Instructions use plain language; jargon is defined or has tooltips; reading level appropriate for audience | Medium |
+| Glossary / help system | For interfaces using 3+ domain-specific terms (e.g., xG, VAEP, DEFCON, cosine distance), is there a glossary, tooltip system, or contextual help? Absence forces users to seek external documentation (high between-patch cost) | Medium (High for kiosk users) |
 | Error messages | Errors are announced to screen readers (via `aria-live` or equivalent) | High |
 | Time limits | If the interface has timeouts, users can extend or disable them | High |
 | Demographic bias | Data visualizations don't embed bias (e.g., gendered defaults, culturally specific color meanings, age-biased interaction patterns) | Medium |
@@ -433,6 +609,26 @@ Evaluate the navigation structure, error recovery paths, and overall information
 | Help discoverability | Help, documentation, or tooltips are findable when the user is confused | Medium |
 | Onboarding | First-time users have a clear starting point (not a blank screen with too many options) | High |
 
+#### Information Scent (Pirolli & Card)
+
+Navigation labels are not just organizational — they are *scent cues* that predict whether the user's goal lies behind that link. Weak scent causes wrong choices, backtracking, and abandonment.
+
+| Check | What to look for | Severity |
+|-------|-----------------|----------|
+| Label-goal alignment | Does each navigation label use the user's goal vocabulary, not the developer's implementation vocabulary? (e.g., "Player Valuation" vs "Action Values") | High |
+| Scent strength | Would the target user predict the content behind this label? Would they choose it from a list of alternatives? | High |
+| Per-label scent scoring | Score every navigation label using the table below. Labels scoring "Weak" are findings | High |
+| Scent continuity | Does each page provide scent trails (links, "see also", related pages) to logically adjacent content? | Medium |
+| Between-patch cost | How many clicks and re-entries are required to move between related content on different pages? | Medium |
+
+**Per-label scent scoring table** (complete for every top-level navigation item):
+
+| Navigation Label | Target User Goal | Scent Strength | Issue (if Weak/Medium) |
+|-----------------|------------------|----------------|------------------------|
+| [label] | [what goal does the user expect this leads to?] | Strong / Medium / Weak | [why the label fails to predict content] |
+
+Labels that use implementation vocabulary ("Action Values"), abbreviations ("Def. Pressure"), or domain jargon without context ("DEFCON") score Weak for kiosk users. Goal-oriented labels ("Compare Players", "Match Timeline") score Strong.
+
 #### Navigation anti-patterns
 
 | Pattern | Issue | Severity |
@@ -442,6 +638,24 @@ Evaluate the navigation structure, error recovery paths, and overall information
 | Navigation labels that are ambiguous without context (e.g., "Overview", "Details", "More") | Labels must be self-describing — user shouldn't need to click to understand | Medium |
 | Pagination without alternative (no "show all" or "jump to page" option) | Users scanning for specific items are forced to page through sequentially | Low |
 | Tab-based navigation with dependent state (selecting Tab A changes what Tab B shows) | Hidden state coupling — user doesn't expect tab selection to affect other tabs | High |
+
+#### Multi-Surface Coherence (if applicable)
+
+**Skip this section** if the project has only one user-facing surface.
+
+If the project spans multiple user-facing surfaces (web app + mobile, main app + demo, app + documentation site, app + HF Hub artifacts), evaluate the coherence of the *ecosystem* using Hutchins' Distributed Cognition framework (1995):
+
+| Check | What to look for | Severity if missing |
+|-------|-----------------|---------------------|
+| Role declaration | Does each surface explicitly explain its role and relationship to other surfaces? ("This is a lightweight demo — for full analysis, visit the main app") | High |
+| Cross-linking | Can users navigate between surfaces? Is linking bidirectional? | High |
+| Visual identity coherence | Do surfaces share enough visual identity (branding, color scheme, typography) that users recognize them as part of the same ecosystem? Three unrelated themes signals three unrelated products | Medium |
+| Capability communication | Does each surface make clear what it can/cannot do vs other surfaces? Can users tell which surface has which data scope? | High |
+| Inter-surface memory | Can users carry context (selections, filters, findings) between surfaces, or must they re-enter everything? | Medium |
+| Vocabulary alignment | Do all surfaces use the same terms for the same concepts? | High |
+| Capability confusion | Would a user who discovers the ecosystem through Surface B (e.g., HF Space demo) understand what Surface A (e.g., main Streamlit app) adds? | High |
+
+**Distributed Cognition gap analysis:** For each pair of surfaces, identify: (1) what cognitive work the user must do to bridge between them, (2) what information is lost in the transition, and (3) whether the transition is discoverable or requires external knowledge.
 
 **Output:** Information architecture findings with navigation map, identified dead ends, and restructuring recommendations.
 
@@ -531,6 +745,16 @@ Present concrete findings with cognitive impact assessment:
 | Screen | Elements | Decisions | Data Points | Load Rating |
 |--------|----------|-----------|-------------|-------------|
 | [Page] | [count] | [count] | [count] | Low/Medium/High/Critical |
+
+### NASA-TLX Scores (critical workflows)
+| Workflow | Mental | Physical | Temporal | Effort | Performance | Frustration | Average |
+|----------|--------|----------|----------|--------|-------------|-------------|---------|
+| [Task] | [1-20] | [1-20] | [1-20] | [1-20] | [1-20] | [1-20] | [avg] |
+
+### Multi-Surface Coherence (if applicable)
+| Surface | Role | Cross-Links | Visual Identity | Issues |
+|---------|------|-------------|-----------------|--------|
+| [Surface] | [Primary/Demo/Docs] | [To/From which surfaces] | [Consistent/Divergent] | [Summary] |
 
 ### Phase Coverage Matrix
 | Phase | Checks Run | Findings | Key Result |

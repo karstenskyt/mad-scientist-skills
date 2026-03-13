@@ -74,7 +74,7 @@ Quantitative thresholds for detecting cognitive overload. These are guidelines, 
 | Visual hierarchy levels on one screen | >4 | Medium | Too many levels — unclear what's most important |
 | Text paragraphs before first interactive element | >2 | Medium | Wall of text before action — users skip to action |
 | Data table columns visible without scrolling | >10 | Medium | Too many columns to scan effectively |
-| Navigation items at one level | >7 | Medium | Miller's Law — more than 7 items need grouping |
+| Navigation items at one level | >7 | Medium | Miller's Law (Miller 1956) — more than 7 items need grouping |
 | Filters visible simultaneously | >8 | Medium | Filter overload — need grouping or progressive disclosure |
 | Form fields visible without scrolling | >10 | Medium | Long forms intimidate — group into sections |
 
@@ -110,6 +110,81 @@ Progressive disclosure is the primary tool for managing intrinsic load without a
 | **Inconsistent nesting** | Sometimes one click to expand, sometimes two — unpredictable | Standardize disclosure interaction across the interface |
 | **Disclosure amnesia** | Expanded sections collapse on page navigation or refresh | Remember disclosure state in session |
 
+## Dual-Process Theory (Kahneman)
+
+Daniel Kahneman's Dual-Process Theory (*Thinking, Fast and Slow*, 2011) distinguishes two cognitive systems:
+
+| System | Characteristics | Interface Implications |
+|--------|----------------|----------------------|
+| **System 1** (fast) | Automatic, intuitive, effortless. Pattern recognition, spatial perception, emotional response | Color coding, spatial grouping, familiar icons, directional indicators (up = good), pre-attentive visual features |
+| **System 2** (slow) | Deliberate, analytical, effortful. Calculation, comparison, logical reasoning | Raw numbers, multi-step calculations, unfamiliar scales, counter-intuitive metrics |
+
+### Dual-Process Audit Checks
+
+The audit question: "Is the interface engaging System 2 when System 1 could suffice?"
+
+| Check | System 2 Overload Indicator | System 1 Fix | Severity |
+|-------|----------------------------|--------------|----------|
+| **Raw numeric outputs** | User must calculate whether a number is good/bad/average | Add color bands (green/yellow/red), verbal labels ("above average"), or sparkline context | High |
+| **Counter-intuitive scales** | Lower value = more intense/better, violating "higher = more" System 1 expectation | Add explicit direction indicator ("lower is better", downward arrow) or invert the scale | Medium |
+| **Raw identifiers** | User must mentally map IDs to meaningful entities | Show human-readable names; provide ID on demand | Medium |
+| **Unlabeled axes** | User must infer what a chart dimension represents | Add clear axis labels with units | Medium |
+| **Opaque aggregations** | User must guess aggregation boundaries (per-match? per-season? career?) | Show scope explicitly ("Season 2024-25, 23 matches") | Medium |
+| **Missing pre-attentive cues** | User must read and compare numbers that could be color-coded or spatially arranged | Use color, size, position, or grouping for at-a-glance comparison | Low |
+| **Multiple unit systems** | User must mentally convert between unit systems (e.g., yards and meters, different coordinate systems) | Normalize to one system or show both with clear labels | Medium |
+
+### When System 2 is Appropriate
+
+Not all System 2 engagement is bad. For *analytical tasks* (detailed comparison, hypothesis testing, data exploration), System 2 engagement is expected and productive — this is **germane load** in Sweller's taxonomy. The audit target is System 2 engagement that provides no analytical value — extraneous cognitive effort caused by poor presentation choices.
+
+## Visual Encoding Effectiveness (Cleveland & McGill)
+
+Cleveland & McGill's landmark paper "Graphical Perception" (*JASA*, 1984) established an empirically-validated ranking of visual encodings by perceptual accuracy. For data-heavy interfaces, each visualization should use the most accurate encoding available for its data relationship.
+
+### Encoding Hierarchy (ranked by perceptual accuracy)
+
+| Rank | Encoding | Perceptual Accuracy | Best For | Common Misuse |
+|------|----------|-------------------|----------|---------------|
+| 1 | Position along common scale | Highest | Comparing quantities (bar chart, dot plot, scatter plot) | — |
+| 2 | Position along non-aligned scales | High | Comparison with offset context (small multiples) | — |
+| 3 | Length | Good | Magnitude comparison (simple bar charts) | Stacked bars where inner segments are hard to compare |
+| 4 | Angle / slope | Moderate | Trends over time (line charts) | Radar/spider charts — angle encoding distorts magnitude perception |
+| 5 | Area | Poor | Approximate magnitude (treemaps, bubble charts) | Pie charts — area + angle combination performs poorly |
+| 6 | Color saturation / hue | Lowest for quantitative | Categories (nominal) or continuous spatial fields (heatmaps) | Using color intensity for precise quantitative comparison |
+
+### Audit Procedure
+
+For each data visualization in the interface:
+1. Identify the *data relationship* being communicated (comparison, trend, distribution, part-to-whole, spatial)
+2. Identify the *visual encoding* used
+3. Check whether a higher-ranked encoding could represent the same relationship
+4. Flag mismatches where a lower-ranked encoding is used when a higher-ranked alternative exists
+
+### Common Violations
+
+| Violation | Issue | Fix |
+|-----------|-------|-----|
+| Radar/spider chart for precise comparison | Angle encoding (rank 4) when position (rank 1) is available | Use grouped bar chart or parallel coordinates |
+| Bar chart with multiple metrics on incompatible scales | Small-magnitude metrics visually compressed next to large ones | Normalize, use separate charts, or use dual-axis with clear labeling |
+| Pie chart for >5 categories | Area + angle encoding with many small slices | Use horizontal bar chart (position encoding) |
+| Heatmap as only view of quantitative data | Color encoding (rank 6) with no text overlay | Add numeric labels or provide table view alongside |
+| 3D effects on 2D data | Perspective distortion adds no informational value | Remove 3D; use flat 2D encoding |
+
+### Chart Scalability / Degradation
+
+Cleveland & McGill's ranking evaluates encoding *type*, but encoding effectiveness also degrades as data volume increases. A grouped bar chart is perceptually excellent for 4 groups but becomes a color field at 20. The audit must evaluate not just which encoding is used but whether it remains effective at the data volumes the interface produces.
+
+| Chart Type | Degradation Threshold | What Happens | Fix |
+|------------|----------------------|--------------|-----|
+| Grouped bar chart | >8 groups | Individual bars become slivers, impossible to compare across groups | Paginate, aggregate, or switch to heatmap |
+| Stacked bar chart | >5 segments | Inner segments (non-baseline) become unreadable | Show top-N + "Other", or switch to small multiples |
+| Pie / donut chart | >5 slices | Small slices are imperceptible | Switch to horizontal bar chart |
+| Scatter plot | >100 points in view | Overplotting hides distribution shape | Add opacity, jitter, or switch to density contours |
+| Legend | >5 items | Legend becomes primary reading task instead of chart | Use inline labels, small multiples, or interactive highlight |
+| Axis labels | Variable-length text | Labels overlap or rotate to unreadability | Abbreviate, rotate 45°, or switch to horizontal bars |
+
+**Audit procedure:** For each chart, determine the maximum data volume it will render (not the current volume — the maximum). Check whether the encoding remains effective at that scale.
+
 ## Working Memory Management Checklist
 
 | Check | Extraneous Load Source | Fix |
@@ -121,3 +196,4 @@ Progressive disclosure is the primary tool for managing intrinsic load without a
 | Does the user need to hold a mental model of system state? | Hidden state | Show state explicitly (status indicators, active filters, selection count) |
 | Does the user need to read documentation to use a feature? | Deferred explanation | Contextual help, tooltips, inline examples |
 | Does the user need to map between terminology systems? | Vocabulary mismatch | Use the user's domain vocabulary consistently |
+| Does the user need to judge whether a numeric value is "good" or "bad"? | Missing interpretive context (System 2 when System 1 could suffice) | Add reference values, percentile rank, color coding, or verbal labels |

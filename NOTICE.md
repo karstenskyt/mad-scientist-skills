@@ -1,0 +1,248 @@
+# NOTICE
+
+mad-scientist-skills
+Copyright 2026 Karsten S. Nielsen
+
+This product includes skills whose audit methodologies reference
+published academic research, industry standards, and named techniques.
+No third-party source code is included. All skill implementations are
+original work; the frameworks below are cited as the intellectual
+foundations that inform the audit checklists and scoring methods.
+
+## cognitive-interface-audit
+
+### Primary Research Threads
+
+Card, S.K., Moran, T.P. & Newell, A. (1983). *The Psychology of
+Human-Computer Interaction.* Lawrence Erlbaum Associates.
+Framework: GOMS (Goals, Operators, Methods, Selection rules).
+
+Wood, S.D. & Byrne, M.D. (2002). "A Cognitive Approach to Designing
+Human Error Tolerant Interfaces." *Proceedings of the 46th Annual
+Meeting of the Human Factors and Ergonomics Society.*
+Framework: 7-layer error defense model.
+
+Wood, S.D. (2000). *Modeling Human Error for Experimentation, Training,
+and Error-Tolerant Design.* PhD dissertation, University of Michigan.
+
+Gergle, D., Kraut, R.E. & Fussell, S.R. (2013). "Using Visual
+Information for Grounding and Awareness in Collaborative Tasks."
+*Human-Computer Interaction,* 28(1), 1-39.
+Framework: Visual grounding and shared visual context.
+
+Gergle, D., Kraut, R.E. & Fussell, S.R. (2006). "The Impact of Delayed
+Visual Feedback on Collaborative Performance." *Proceedings of the SIGCHI
+Conference on Human Factors in Computing Systems (CHI 2006).*
+
+Gergle, D. (2006). *The Value of Shared Visual Information for Task
+Performance in Groups.* PhD dissertation, Carnegie Mellon University.
+
+Gergle, D. et al. (2018). Best Paper, *ACM Conference on Human Factors
+in Computing Systems (CHI 2018).* Age-related bias in computational
+systems.
+
+Gergle, D. et al. (2022). Best Paper Honorable Mention, *ACM Conference
+on Human Factors in Computing Systems (CHI 2022).* Model positionality
+in design outcomes.
+
+Gergle, D. et al. (2021). "Joint Action Storyboards: A Framework for
+Visualizing Communication Grounding Costs." *Proceedings of the ACM on
+Human-Computer Interaction (CSCW 2021).*
+
+Brinck, T., Gergle, D. & Wood, S.D. (2001). *Usability for the Web:
+Designing Web Sites that Work.* Morgan Kaufmann.
+Convergence: pervasive usability framework linking error tolerance
+and grounding research.
+
+### Supporting Frameworks
+
+Norman, D.A. (1988; revised 2013). *The Design of Everyday Things.*
+Basic Books.
+Framework: Gulfs of Execution and Evaluation.
+
+Rasmussen, J. (1983). "Skills, Rules, and Knowledge; Signals, Signs,
+and Symbols, and Other Distinctions in Human Performance Models."
+*IEEE Transactions on Systems, Man, and Cybernetics,* SMC-13(3), 257-266.
+Framework: SRK taxonomy for error classification.
+
+Reason, J. (1990). *Human Error.* Cambridge University Press.
+Framework: Error mechanism taxonomy (similarity matching, frequency
+gambling).
+
+Sweller, J. (1988). "Cognitive Load During Problem Solving: Effects on
+Learning." *Cognitive Science,* 12(2), 257-285.
+Framework: Cognitive Load Theory (intrinsic, extraneous, germane load).
+
+Hart, S.G. & Staveland, L.E. (1988). "Development of NASA-TLX (Task
+Load Index): Results of Empirical and Theoretical Research." In
+P.A. Hancock & N. Meshkati (Eds.), *Human Mental Workload.* North-Holland.
+Framework: NASA Task Load Index.
+
+Kahneman, D. (2011). *Thinking, Fast and Slow.* Farrar, Straus and
+Giroux.
+Framework: Dual-Process Theory (System 1 / System 2).
+
+Cleveland, W.S. & McGill, R. (1984). "Graphical Perception: Theory,
+Experimentation, and Application to the Development of Graphical
+Methods." *Journal of the American Statistical Association,* 79(387),
+531-554.
+Framework: Visual encoding effectiveness hierarchy.
+
+Lee, J.D. & See, K.A. (2004). "Trust in Automation: Designing for
+Appropriate Reliance." *Human Factors,* 46(1), 50-80.
+Framework: Trust calibration (performance, process, purpose).
+
+Pirolli, P. & Card, S.K. (1999). "Information Foraging." *Psychological
+Review,* 106(4), 643-675.
+Framework: Information scent and navigation scent scoring.
+
+Wertheimer, M. (1923). "Untersuchungen zur Lehre von der Gestalt II."
+*Psychologische Forschung,* 4, 301-350.
+Framework: Gestalt principles of perceptual organization.
+
+Vicente, K.J. & Rasmussen, J. (1992). "Ecological Interface Design:
+Theoretical Foundations." *IEEE Transactions on Systems, Man, and
+Cybernetics,* 22(4), 589-606.
+Framework: Ecological Interface Design, abstraction hierarchy.
+
+Burns, C.M. & Hajdukiewicz, J.R. (2004). *Ecological Interface Design.*
+CRC Press.
+Secondary EID reference.
+
+Hutchins, E. (1995). *Cognition in the Wild.* MIT Press.
+Framework: Distributed Cognition.
+
+Endsley, M.R. (1995). "Toward a Theory of Situation Awareness in
+Dynamic Systems." *Human Factors,* 37(1), 32-64.
+Framework: Three-level situation awareness model.
+
+Nielsen, J. (1993). *Usability Engineering.* Academic Press.
+Framework: Response time thresholds (100ms, 1s, 10s).
+
+Nielsen, J. (1994). "10 Usability Heuristics for User Interface Design."
+Nielsen Norman Group.
+Framework: Heuristic evaluation methodology.
+
+Miller, G.A. (1956). "The Magical Number Seven, Plus or Minus Two:
+Some Limits on Our Capacity for Processing Information." *Psychological
+Review,* 63(2), 81-97.
+Framework: Working memory capacity limits.
+
+Wharton, C., Rieman, J., Lewis, C. & Polson, P. (1994). "The Cognitive
+Walkthrough Method: A Practitioner's Guide." In J. Nielsen & R.L. Mack
+(Eds.), *Usability Inspection Methods.* John Wiley & Sons.
+
+Clark, H.H. & Brennan, S.E. (1991). "Grounding in Communication." In
+L.B. Resnick, J.M. Levine & S.D. Teasley (Eds.), *Perspectives on
+Socially Shared Cognition.* American Psychological Association.
+Framework: Common ground and grounding costs.
+
+Hinds, P.J. (1999). "The Curse of Expertise: The Effects of Expertise
+and Debiasing Methods on Predictions of Novice Performance." *Journal of
+Experimental Psychology: Applied,* 5(2), 205-221.
+Framework: Expert blind spot in interface design.
+
+## security-audit
+
+Kohnfelder, L. & Garg, P. (1999). "The Threats to Our Products."
+Microsoft Corporation (internal white paper, subsequently published).
+Framework: STRIDE threat modeling (Spoofing, Tampering, Repudiation,
+Information Disclosure, Denial of Service, Elevation of Privilege).
+
+OWASP Foundation. (2021). *OWASP Top 10:2021 — The Ten Most Critical
+Web Application Security Risks.* https://owasp.org/Top10/
+Standard: Web application security risk taxonomy.
+
+MITRE Corporation. *Common Weakness Enumeration (CWE).* https://cwe.mitre.org/
+Standard: Software weakness identification system. CWE identifiers
+(CWE-79, CWE-89, etc.) used throughout audit checklists.
+
+Sakimura, N. et al. (2015). "Proof Key for Code Exchange by OAuth
+Public Clients." RFC 7636. IETF.
+Standard: PKCE flow for OAuth 2.0.
+
+OpenSSF & Google. (2021). *Supply-chain Levels for Software Artifacts
+(SLSA).* https://slsa.dev/
+Framework: Supply chain security maturity levels.
+
+W3C & FIDO Alliance. (2019). *Web Authentication: An API for Accessing
+Public Key Credentials (WebAuthn).* W3C Recommendation.
+Standard: Passwordless authentication specification.
+
+## observability-audit
+
+Wilkie, T. (2015). "The RED Method: Key Metrics for Microservices
+Architecture." Weaveworks blog.
+Framework: Rate, Error rate, Duration for service monitoring.
+
+Gregg, B. (2012). "The USE Method." brendangregg.com.
+Framework: Utilization, Saturation, Errors for resource monitoring.
+
+Beyer, B., Jones, C., Petoff, J. & Murphy, N.R. (2016). *Site
+Reliability Engineering: How Google Runs Production Systems.* O'Reilly
+Media.
+Framework: SLIs, SLOs, error budgets, four golden signals, burn-rate
+alerting.
+
+W3C. (2021). *Trace Context.* W3C Recommendation.
+https://www.w3.org/TR/trace-context/
+Standard: Distributed trace context propagation.
+
+Page, E.S. (1954). "Continuous Inspection Schemes." *Biometrika,*
+41(1-2), 100-115.
+Algorithm: CUSUM (cumulative sum) sequential change detection.
+
+Kolmogorov, A.N. (1933). "Sulla determinazione empirica di una legge
+di distribuzione." *Giornale dell'Istituto Italiano degli Attuari,* 4,
+83-91.
+Smirnov, N.V. (1948). "Table for Estimating the Goodness of Fit of
+Empirical Distributions." *Annals of Mathematical Statistics,* 19(2),
+279-281.
+Algorithm: Kolmogorov-Smirnov two-sample test for distribution drift.
+
+Vasershtein, L.N. (1969). "Markov Processes over Countable Products of
+Spaces." *Problemy Peredachi Informatsii,* 5(3), 64-72.
+Algorithm: Wasserstein distance (Earth Mover's Distance) for
+distribution comparison.
+
+## optimization-audit
+
+Amdahl, G.M. (1967). "Validity of the Single Processor Approach to
+Achieving Large Scale Computing Capabilities." *AFIPS Conference
+Proceedings,* 30, 483-485.
+Law: Maximum speedup from parallelization.
+
+Miller, G.A. (1956). See cognitive-interface-audit section above.
+
+Hohpe, G. & Woolf, B. (2003). *Enterprise Integration Patterns:
+Designing, Building, and Deploying Messaging Solutions.* Addison-Wesley.
+Patterns: Splitter, Scatter-Gather, Content-Based Router, Claim Check,
+Pipes and Filters.
+
+Goetz, B. et al. (2006). *Java Concurrency in Practice.* Addison-Wesley.
+Formula: Thread pool sizing (Section 8.2).
+
+Vattani, A., Chierichetti, F. & Lowenstein, K. (2015). "Optimal
+Probabilistic Cache Stampede Prevention." *Proceedings of the VLDB
+Endowment,* 8(8), 886-897.
+Algorithm: XFetch probabilistic early expiration.
+
+Ward, J.H. Jr. (1963). "Hierarchical Grouping to Optimize an Objective
+Function." *Journal of the American Statistical Association,* 58(301),
+236-244.
+Algorithm: Ward's minimum-variance clustering.
+
+Google. (2020). *Web Vitals.* https://web.dev/vitals/
+Metrics: Core Web Vitals (LCP, INP, CLS).
+
+Martin, R.C. (2002). *Agile Software Development: Principles, Patterns,
+and Practices.* Prentice Hall.
+Principles: SOLID (Single Responsibility, Open-Closed, Liskov
+Substitution, Interface Segregation, Dependency Inversion).
+
+## c4
+
+Brown, S. (2018-present). "The C4 Model for Visualising Software
+Architecture." https://c4model.com/
+Framework: C4 model (Context, Container, Component, Code).
+Tool: Structurizr DSL, the official C4 authoring notation.

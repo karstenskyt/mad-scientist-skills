@@ -120,6 +120,68 @@ Every system state must be visually communicated to the user:
 | **Paginated** | When viewing a subset | "Page X of Y", total count, navigation controls |
 | **Sorted** | When data is ordered | Sort indicator on column header, sort direction arrow |
 
+## Constraint Visibility (Vicente & Rasmussen EID)
+
+Ecological Interface Design (Vicente & Rasmussen, *IEEE SMC*, 1992) argues that effective interfaces make the work domain's constraints visible — not just the system's controls. When users cannot see *why* certain data is available or unavailable, they form incorrect mental models about what the system represents.
+
+### Abstraction Hierarchy
+
+EID's abstraction hierarchy describes five levels at which users need to understand the work domain:
+
+| Level | Question | Interface Must Show |
+|-------|---------|-------------------|
+| **Functional purpose** | Why does this system exist? | Clear value proposition on landing page / first interaction |
+| **Abstract function** | What principles govern the domain? | Relationships between metrics, domain model visibility |
+| **Generalized function** | What processes produce the outputs? | Data pipeline provenance, model descriptions |
+| **Physical function** | How is data collected and processed? | Data source labels, collection methodology |
+| **Physical form** | What raw data exists? | Data coverage indicators, available vs total counts |
+
+### Constraint Visibility Checklist
+
+| Check | What to look for | Severity if missing |
+|-------|-----------------|---------------------|
+| **Data coverage** | Does the interface explain what fraction of the total data universe is visible? (e.g., "Tracking data: 20 of 380 matches") | High |
+| **Absence explanation** | When a feature, page, or data subset is unavailable, does the interface explain *why*? (vs silently hiding or showing empty state) | High |
+| **Boundary markers** | Are aggregation/comparison boundaries explicit? (e.g., "Average based on 5 Bundesliga matches" vs "Average: 0.45") | Medium |
+| **Relationship visibility** | Can users see how displayed metrics relate to each other without navigating to separate pages? | Medium |
+| **Constraint source** | Can users tell whether a limitation is from data availability, model scope, or system design? | Medium |
+
+## Trust Calibration (Lee & See)
+
+John D. Lee and Katrina A. See's "Trust in Automation" (*Human Factors*, 2004) establishes that appropriate trust in automated/model-derived outputs requires visibility of three properties: **performance** (how well does the system work?), **process** (how does it work?), and **purpose** (why was it designed this way?).
+
+### When Trust Calibration Applies
+
+This section applies whenever the interface displays outputs from:
+- Machine learning models (predictions, embeddings, similarity scores, classifications)
+- Statistical models (computed metrics, derived values, aggregations over uncertain data)
+- Recommendation algorithms (suggested items, ranked lists)
+- Automated decision systems (alerts, flags, risk scores)
+
+**Skip this section** for interfaces that display only user-entered data, simple lookups, or raw measurements with no model/algorithm layer.
+
+### Trust Calibration Checklist
+
+| Check | Trust Dimension | What to look for | Severity if missing |
+|-------|----------------|-----------------|---------------------|
+| **Model provenance** | Process | Can the user tell which model/algorithm produced this output? | Medium |
+| **Uncertainty indication** | Performance | Does the output show confidence bounds, ranges, or uncertainty? (e.g., "xG: 0.23 ± 0.05") | High |
+| **Sample size context** | Performance | Does the user know how much data informs this output? (e.g., "based on 23 matches") | High |
+| **Limitation visibility** | Purpose | Are known model limitations surfaced near the output? (e.g., "tracking data available for 7 of 38 matches") | Medium |
+| **Calibration anchors** | Performance | Are reference points provided for numeric outputs? (e.g., "league average: 0.45") | High |
+| **Temporal validity** | Performance | Is the model's training data currency visible? (e.g., "model trained on 2024-25 data") | Medium |
+| **Failure modes** | Process | When the model produces low-confidence or out-of-distribution results, is this communicated? | High |
+| **Comparability scope** | Purpose | Are comparison boundaries clear? (e.g., "similarity computed within midfielders only" vs "all positions") | Medium |
+
+### Trust Miscalibration Patterns
+
+| Pattern | Risk | Fix |
+|---------|------|-----|
+| **Over-trust** — Precise-looking numbers with no uncertainty | Users treat model outputs as ground truth | Add confidence intervals, show model limitations, use softer language ("estimated", "approximately") |
+| **Under-trust** — Model outputs presented identically to raw data | Users ignore valuable computed insights because they look like just another number | Differentiate model outputs visually; add provenance label |
+| **Automation complacency** — Model always agrees with user's prior belief | Users stop checking because the model seems to confirm everything | Show cases where model disagrees with naive expectation |
+| **Opaque aggregation** — Derived metric with no decomposition | Users cannot verify the output or understand what drives it | Show component breakdown or "how this was calculated" expandable |
+
 ## Visual Anchoring Patterns
 
 Techniques to reduce grounding cost across multi-step workflows:
