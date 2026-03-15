@@ -25,10 +25,15 @@ Framework: 7-layer error defense model.
 Wood, S.D. (2000). *Modeling Human Error for Experimentation, Training,
 and Error-Tolerant Design.* PhD dissertation, University of Michigan.
 
+Gergle, D., Kraut, R.E. & Fussell, S.R. (2004). "Action as Language in
+a Shared Visual Space." *Proceedings of the SIGCHI Conference on Human
+Factors in Computing Systems (CHI 2004).*
+Framework: Visual grounding in collaborative tasks.
+
 Gergle, D., Kraut, R.E. & Fussell, S.R. (2013). "Using Visual
 Information for Grounding and Awareness in Collaborative Tasks."
 *Human-Computer Interaction,* 28(1), 1-39.
-Framework: Visual grounding and shared visual context.
+Journal expansion of the 2004 CHI work on visual grounding.
 
 Gergle, D., Kraut, R.E. & Fussell, S.R. (2006). "The Impact of Delayed
 Visual Feedback on Collaborative Performance." *Proceedings of the SIGCHI
@@ -123,10 +128,27 @@ Nielsen, J. (1994). "10 Usability Heuristics for User Interface Design."
 Nielsen Norman Group.
 Framework: Heuristic evaluation methodology.
 
+Hick, W.E. (1952). "On the Rate of Gain of Information." *Quarterly
+Journal of Experimental Psychology,* 4(1), 11-26.
+Law: Choice reaction time increases logarithmically with the number of
+alternatives (Hick's Law).
+
+Friedman, B., Kahn, P.H. Jr. & Borning, A. (2006). "Value Sensitive
+Design and Information Systems." In P. Zhang & D. Galletta (Eds.),
+*Human-Computer Interaction in Management Information Systems:
+Foundations.* M.E. Sharpe.
+Framework: Designing for human values, including bias mitigation.
+
 Miller, G.A. (1956). "The Magical Number Seven, Plus or Minus Two:
 Some Limits on Our Capacity for Processing Information." *Psychological
 Review,* 63(2), 81-97.
 Framework: Working memory capacity limits.
+
+Cowan, N. (2001). "The Magical Number 4 in Short-Term Memory: A
+Reconsideration of Mental Storage Capacity." *Behavioral and Brain
+Sciences,* 24(1), 87-114.
+Framework: Revised working memory capacity (~4 chunks), updating
+Miller's 7±2.
 
 Wharton, C., Rieman, J., Lewis, C. & Polson, P. (1994). "The Cognitive
 Walkthrough Method: A Practitioner's Guide." In J. Nielsen & R.L. Mack

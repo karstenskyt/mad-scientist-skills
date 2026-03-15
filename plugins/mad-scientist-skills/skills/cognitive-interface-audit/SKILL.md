@@ -40,7 +40,8 @@ This skill synthesizes seven research threads into a single audit methodology:
 - Norman, *The Design of Everyday Things* (1988; revised 2013) — Gulf of Execution/Evaluation
 - Wood & Byrne, "A Cognitive Approach to Designing Human Error Tolerant Interfaces" (2002) — 7-layer defense
 - Wood, "Modeling Human Error for Experimentation, Training, and Error-Tolerant Design" (IITSEC 2002)
-- Gergle, Kraut & Fussell, "Using Visual Information for Grounding and Awareness" (*HCI*, 2013)
+- Gergle, Kraut & Fussell, "Action as Language in a Shared Visual Space" (*CHI*, 2004) — visual grounding in collaborative tasks
+- Gergle, Kraut & Fussell, "Using Visual Information for Grounding and Awareness" (*HCI*, 2013) — journal expansion of the 2004 work
 - Gergle et al., "Joint Action Storyboards" (CSCW 2021) — grounding cost visualization
 - Brinck, Gergle & Wood, *Usability for the Web* (Morgan Kaufmann, 2001)
 - Rasmussen, "Skills, Rules, and Knowledge" (*IEEE SMC*, 1983) — SRK framework
@@ -55,7 +56,10 @@ This skill synthesizes seven research threads into a single audit methodology:
 - Vicente & Rasmussen, "Ecological Interface Design: Theoretical Foundations" (*IEEE SMC*, 1992) — EID
 - Burns & Hajdukiewicz, *Ecological Interface Design* (CRC Press, 2004)
 - Miller, "The Magical Number Seven, Plus or Minus Two" (*Psychological Review*, 1956) — working memory limits
+- Cowan, "The Magical Number 4 in Short-Term Memory" (*Behavioral and Brain Sciences*, 2001) — revised Miller's 7±2 to ~4 chunks
 - Nielsen, "10 Usability Heuristics for User Interface Design" (1994)
+- Hick, "On the Rate of Gain of Information" (*Quarterly Journal of Experimental Psychology*, 1952) — choice reaction time
+- Friedman, Kahn & Borning, "Value Sensitive Design and Information Systems" (2006) — designing for human values including bias
 
 ## When to use this skill
 
@@ -109,57 +113,58 @@ Fast grep-based scan for common cognitive interface anti-patterns. Runs first to
 |---------|-------|----------|
 | `st.button(` with label containing "Delete" / "Remove" / "Clear" / "Reset" without preceding confirmation logic | Destructive action without confirmation (Wood Layer 1: Prevention) | High |
 | `st.error(` with hardcoded string and no `st.button` or link in the same block | Error message without recovery guidance (Wood Layer 5: Correction) | High |
-| `st.write("Error` or `st.write("Failed` | Informal error display — no structured error handling | Medium |
-| `st.empty()` with no subsequent `.write` / `.markdown` / `.dataframe` call | Potential dead-end placeholder (no content rendered) | Low |
-| `st.columns(` with 5+ columns | Cognitive overload — too many parallel elements per viewport | Medium |
-| `st.selectbox(` or `st.multiselect(` with inline list of 20+ items | Option overload without search/filter affordance | Medium |
+| `st.write("Error` or `st.write("Failed` | Informal error display — no structured error handling (Wood Layer 4: Identification) | Medium |
+| `st.empty()` with no subsequent `.write` / `.markdown` / `.dataframe` call | Potential dead-end placeholder (no content rendered) (Gergle feedback — system gives no state indication) | Low |
+| `st.columns(` with 5+ columns | Cognitive overload — too many parallel elements per viewport (Miller 1956 — working memory chunk limit; Sweller extraneous load) | Medium |
+| `st.selectbox(` or `st.multiselect(` with inline list of 20+ items | Option overload without search/filter affordance (Miller 1956; Hick's Law — decision time grows with options) | Medium |
 | `st.form_submit_button(` without corresponding `st.success` / `st.error` / `st.toast` in the form handler | Missing submit feedback — user doesn't know if action succeeded | High |
 | Long-running operation (SQL query, API call, computation) without `st.spinner` or `st.status` wrapper | Missing progress indicator — user perceives system as frozen | High |
 | Different `st.success` / `st.toast` / `st.balloons` patterns across pages for equivalent actions | Inconsistent success feedback (Consistency violation) | Medium |
 | `st.page_link` or `st.switch_page` targets that don't match any registered page | Orphaned navigation — link to nowhere | Critical |
-| `st.sidebar` with 10+ interactive widgets | Sidebar cognitive overload — too many controls | Medium |
-| `st.metric(` with `delta` but no `delta_color` specification | Ambiguous delta direction — user must guess if up is good or bad | Medium |
-| `st.tabs(` with 6+ tabs | Tab overload — exceeds working memory chunk limit | Medium |
+| `st.sidebar` with 10+ interactive widgets | Sidebar cognitive overload — too many controls (Miller 1956; Sweller extraneous load) | Medium |
+| `st.metric(` with `delta` but no `delta_color` specification | Ambiguous delta direction — user must guess if up is good or bad (Norman Gulf of Evaluation; Kahneman Dual-Process — System 1 expects up = good) | Medium |
+| `st.tabs(` with 6+ tabs | Tab overload — exceeds (Miller 1956 — working memory chunk limit) | Medium |
 
 #### React / JSX patterns
 
 | Pattern | Issue | Severity |
 |---------|-------|----------|
-| `window.confirm(` | Native confirm dialog — no custom styling, poor UX, breaks flow | Medium |
-| `window.alert(` or `alert(` | Native alert — blocks thread, no structured error handling | Medium |
+| `window.confirm(` | Native confirm dialog — no custom styling, poor UX, breaks flow (Norman Gulf of Execution — dialog vocabulary may not match user intention) | Medium |
+| `window.alert(` or `alert(` | Native alert — blocks thread, no structured error handling (Wood Layer 4: Identification; Gergle feedback interruption) | Medium |
 | `onClick` on `<div>` or `<span>` without `role="button"` and `tabIndex` | Non-semantic interactive element — keyboard/screen reader inaccessible | High |
 | `<img` without `alt` attribute | Missing image alt text — screen reader blind spot | High |
 | Form `onSubmit` without corresponding loading/success/error state management | Missing form feedback | High |
 | `useEffect(` with `fetch` / API call and no loading state | Data fetch without loading indicator | Medium |
 | `dangerouslySetInnerHTML` | XSS risk AND potential layout surprise (cross-concern: security + cognitive) | Critical |
 | `<button` with only an icon (no `aria-label` and no visible text) | Unlabeled action — user must guess the icon's meaning | High |
-| `disabled={true}` without tooltip or explanation of why | Disabled control without explanation — user cannot learn requirement | Medium |
+| `disabled={true}` without tooltip or explanation of why | Disabled control without explanation — user cannot learn requirement (Norman Gulf of Execution — user cannot determine how to enable the control) | Medium |
 
 #### Gradio patterns
 
 | Pattern | Issue | Severity |
 |---------|-------|----------|
-| `gr.Dropdown` with >100 choices and no `filterable=True` | Option overload without search — user must scroll through hundreds of items | Medium |
+| `gr.Dropdown` with >100 choices and no `filterable=True` | Option overload without search — user must scroll through hundreds of items (Miller 1956; Hick's Law) | Medium |
 | `fn=` callback with no corresponding `gr.update` or loading state | Missing processing feedback — user doesn't know computation is running | High |
 | Multiple `gr.Tab` objects referencing the same function without distinguishing state | Shared state confusion — tabs appear independent but mutate shared state | High |
 | `gr.Plot` or `gr.Image` without `label=` parameter | Unlabeled visualization — screen reader and cognitive accessibility gap | Medium |
-| `gr.Blocks` with >6 `gr.Tab` children | Tab overload — exceeds working memory chunk limit | Medium |
-| `gr.Markdown` with >3 paragraphs of instruction before first interactive element | Wall of text before action — users skip instructions and guess | Medium |
-| HF Space with `gr.Blocks` or `gr.Interface` on free-tier (zero-GPU or CPU) and no startup notification or cold-start warning | Cold-start container wake-up takes 30-60s with generic "Building" status — user has no ETA, no retry affordance, no explanation of why it's slow | Medium |
+| `gr.Blocks` with >6 `gr.Tab` children | Tab overload — exceeds (Miller 1956 — working memory chunk limit) | Medium |
+| `gr.Markdown` with >3 paragraphs of instruction before first interactive element | Wall of text before action — users skip instructions and guess (Sweller extraneous load; Pirolli & Card — users skip dense text to follow action scent) | Medium |
+| HF Space with `gr.Blocks` or `gr.Interface` on free-tier (zero-GPU or CPU) and no startup notification or cold-start warning | Cold-start container wake-up takes 30-60s with generic "Building" status — user has no ETA, no retry affordance, no explanation of why it's slow (Gergle — system state visibility; Norman Gulf of Evaluation) | Medium |
 
 #### General UI patterns (any framework)
 
 | Pattern | Issue | Severity |
 |---------|-------|----------|
 | Same action concept with different labels across files (e.g., "Save" / "Submit" / "Apply" / "Update" for the same operation type) | Inconsistent action vocabulary — violates GOMS selection rule consistency | High |
-| Color-only status indicators (`color:` / `background:` with red/green/yellow but no text/icon status) | Color-only differentiation — fails for color-blind users (8% of males) | High |
-| Hardcoded pixel-based layouts without responsive breakpoints | Fixed layout — breaks on different screen sizes | Medium |
-| `placeholder=` used as the only label for form inputs | Placeholder-as-label — disappears on focus, fails accessibility | High |
+| Color-only status indicators (`color:` / `background:` with red/green/yellow but no text/icon status) | Color-only differentiation — fails for color-blind users (8% of males) (WCAG 1.4.1 Use of Color) | High |
+| Hardcoded pixel-based layouts without responsive breakpoints | Fixed layout — breaks on different screen sizes (WCAG 1.4.10 Reflow) | Medium |
+| `placeholder=` used as the only label for form inputs | Placeholder-as-label — disappears on focus, fails accessibility (WCAG 3.3.2 Labels; Nielsen Heuristic 6 Recognition over Recall) | High |
 | Modal/dialog without visible close button or escape key handler | Trapped modal — no obvious exit (Wood Layer 6: Resumption failure) | Critical |
-| `cursor: pointer` on non-interactive elements | False affordance — element looks clickable but isn't | Medium |
-| Navigation menu items without visual indication of current page/section | Missing "you are here" indicator — user loses orientation | High |
-| Tooltip-only labels on primary actions (not supplementary information) | Essential information hidden behind hover — mobile-hostile, discoverable only by accident | Medium |
+| `cursor: pointer` on non-interactive elements | False affordance — element looks clickable but isn't (Norman — perceived affordance mismatch) | Medium |
+| Navigation menu items without visual indication of current page/section | Missing "you are here" indicator — user loses orientation (Nielsen Heuristic 1 Visibility of System Status; Pirolli & Card patch location) | High |
+| Tooltip-only labels on primary actions (not supplementary information) | Essential information hidden behind hover — mobile-hostile, discoverable only by accident (Nielsen Heuristic 6 Recognition over Recall) | Medium |
 | Numeric metric display without interpretive context (no delta, no reference value, no "good/bad" indication) | Metrics without context — user sees a number but cannot judge its meaning (Gulf of Evaluation) | High |
+| Raw identifiers in progressive disclosure (expanders, accordions, "show more" sections) | Tables inside expanders/accordions are still user-facing — scan them for the same raw ID exposure, missing labels, and formatting issues as primary views. Progressive disclosure hides complexity, it does not make it invisible (Norman Gulf of Evaluation — the user still sees the output and must interpret it) | Medium |
 | Counter-intuitive scale direction (lower value = more intense/better) without direction indicator | Scale direction mismatch — System 1 expects "higher = more" but metric inverts this (Dual-Process) | Medium |
 
 For each finding: record file path, line number, pattern matched, severity, the Wood defense layer violated (if applicable), and whether it is a true positive or intentional usage.
@@ -218,9 +223,9 @@ Load `templates/task-model-analysis.md` for the full GOMS methodology reference,
 | Selection rule clarity | When multiple paths exist, is the most common one most prominent? | High |
 | Vocabulary alignment | Do labels, buttons, and headers use the user's domain language, not developer jargon? | High |
 | Progressive complexity | Can novices complete core tasks without encountering power-user features? | High |
-| Chunk boundaries | Are related operations grouped together? Do logical chunks fit within working memory (4 +/- 1 items per group)? | Medium |
-| Interruption recovery | If the user is interrupted mid-task, can they resume without starting over? | High |
-| Global search | For systems with >5 distinct entities (players, products, documents), can users search by name instead of navigating filter cascades? | High |
+| Chunk boundaries | Are related operations grouped together? Do logical chunks fit within working memory (4 +/- 1 items per group)? (Cowan 2001, revising Miller 1956) | Medium |
+| Interruption recovery | If the user is interrupted mid-task, can they resume without starting over? (Wood Layer 6: Resumption; GOMS resumption operators) | High |
+| Global search | For systems with >5 distinct entities (players, products, documents), can users search by name instead of navigating filter cascades? (Pirolli & Card — filter cascades increase between-patch travel cost) | High |
 
 #### Norman's Gulf Analysis
 
@@ -272,6 +277,8 @@ For each domain-specific metric or term displayed in the interface, complete thi
 
 If either audience cannot interpret a displayed metric, it requires at minimum: (1) a tooltip or inline explanation defining the term, (2) a reference value or interpretive label, or (3) a link to documentation. Metrics that fail for *both* audiences are Critical — they are opaque to everyone except the designer.
 
+**Glossary completeness check (Hinds 1999 — Expert Blind Spot):** If the interface has a glossary or help system, cross-reference every unique metric label, chart axis label, and column header against the glossary index. Any displayed label without a corresponding glossary/tooltip entry is a gap — the help system exists but doesn't cover that term. An incomplete glossary is itself a blind spot: the designer assumed certain terms were obvious because they were obvious *to the designer*.
+
 **Output:** Task model analysis for each core task, with expertise spectrum evaluation and identified misalignment points.
 
 ---
@@ -287,13 +294,14 @@ Evaluate whether the interface uses the same patterns for the same operations, a
 | Layout patterns | Similar pages have similar layouts. Data tables, forms, and detail views follow the same template | Medium |
 | Color semantics | Colors convey the same meaning everywhere (red = error/danger, green = success, etc.) | High |
 | Interaction patterns | Same gesture/click pattern produces same type of result (e.g., clicking a row always opens detail) | High |
-| Platform conventions | Interface follows platform norms (web: links are blue/underlined, buttons look clickable; mobile: swipe, pull-to-refresh) | Medium |
-| Domain conventions | Interface follows domain-specific conventions (e.g., in soccer analytics: pitch orientation, color coding by team, standard stat abbreviations) | High |
-| Error message format | All errors use the same structure (icon + message + recovery action) | Medium |
+| Platform conventions | Interface follows platform norms (web: links are blue/underlined, buttons look clickable; mobile: swipe, pull-to-refresh) (Nielsen Heuristic 4 Consistency and Standards) | Medium |
+| Domain conventions | Interface follows domain-specific conventions (e.g., in soccer analytics: pitch orientation, color coding by team, standard stat abbreviations) (Nielsen Heuristic 4; GOMS compiled methods from domain experience) | High |
+| Error message format | All errors use the same structure (icon + message + recovery action) (Nielsen Heuristic 9; Wood Layer 4 Identification) | Medium |
 | Loading patterns | Progress indication uses the same mechanism throughout (spinner, skeleton, progress bar) | Medium |
 | Empty states | "No data" scenarios handled consistently across all views | Medium |
 | Navigation patterns | Back/forward/breadcrumb behavior is predictable and consistent | High |
-| Keyboard shortcuts | If shortcuts exist, they follow platform conventions (Ctrl+S = save, Escape = cancel/close) | Medium |
+| Keyboard shortcuts | If shortcuts exist, they follow platform conventions (Ctrl+S = save, Escape = cancel/close) (Nielsen Heuristic 4; GOMS motor method transfer) | Medium |
+| Partial pattern application | If a UX pattern (cross-page links, toast feedback, contextual help, academic citations) appears on some pages but not all equivalent pages, flag as a consistency finding (GOMS Selection Rules — users develop an expectation from the pages where the pattern exists, then that expectation is violated on the pages where it doesn't). A pattern on 3 of 11 pages is worse than no pattern | High |
 | Sidebar spatial stability | Do sidebar controls remain stable, or do they appear/disappear based on main-area selections (e.g., radio button changes which sidebar widgets are visible)? Appearing/disappearing controls violate spatial stability and break developing motor patterns (Gestalt Common Fate) | High |
 
 #### Gestalt perceptual checks
@@ -383,16 +391,16 @@ Load `templates/cognitive-load-assessment.md` for the full NASA-TLX scoring guid
 
 | Check | What to look for | Threshold | Severity if exceeded |
 |-------|-----------------|-----------|---------------------|
-| Interactive elements per viewport | Buttons, inputs, selectors, toggles visible without scrolling | >15 interactive elements | High |
-| Decision points per task | Choices the user must make to complete a single task | >5 sequential decisions | High |
-| Information density | Distinct data points visible simultaneously | >30 distinct values per viewport | Medium |
-| Visual hierarchy levels | Number of distinct heading/text sizes used on one screen | >4 levels | Medium |
-| Required recall | Information user must remember from a previous screen to complete current task | Any cross-screen recall without reference | High |
+| Interactive elements per viewport | Buttons, inputs, selectors, toggles visible without scrolling | >15 interactive elements (Sweller extraneous load) | High |
+| Decision points per task | Choices the user must make to complete a single task | >5 sequential decisions (Sweller extraneous load; Hick's Law) | High |
+| Information density | Distinct data points visible simultaneously | >30 distinct values per viewport (Sweller extraneous load) | Medium |
+| Visual hierarchy levels | Number of distinct heading/text sizes used on one screen | >4 levels (Sweller extraneous load; Nielsen Heuristic 8) | Medium |
+| Required recall | Information user must remember from a previous screen to complete current task | Any cross-screen recall without reference (Nielsen Heuristic 6 Recognition over Recall) | High |
 | Simultaneous comparisons | Number of items user must compare at once | >7 items (Miller 1956) | Medium |
-| Mode indicators | Number of active modes/states the user must track | >3 simultaneous modes | High |
-| Text density | Paragraph-length instructions or descriptions | >3 sentences of instruction per action | Medium |
-| Data table columns | Visible columns in a data table | >10 columns without horizontal scroll | Medium |
-| Filter/parameter count | Number of filters or parameters visible simultaneously | >8 without grouping/progressive disclosure | Medium |
+| Mode indicators | Number of active modes/states the user must track | >3 simultaneous modes (Sweller extraneous load) | High |
+| Text density | Paragraph-length instructions or descriptions | >3 sentences of instruction per action (Sweller extraneous load; Pirolli & Card — users skip dense text) | Medium |
+| Data table columns | Visible columns in a data table | >10 columns without horizontal scroll (Miller 1956; Sweller extraneous load) | Medium |
+| Filter/parameter count | Number of filters or parameters visible simultaneously | >8 without grouping/progressive disclosure (Miller 1956; Sweller extraneous load) | Medium |
 
 #### NASA-TLX dimensions (for manual assessment)
 
@@ -452,11 +460,11 @@ For charts that render variable-length data, evaluate whether the encoding degra
 
 | Check | What to look for | Threshold | Severity |
 |-------|-----------------|-----------|----------|
-| Grouped bar chart readability | Do individual bars remain distinguishable as groups increase? | >8 groups: bars become slivers, labels overlap | Medium |
-| Legend overflow | Does the legend remain readable as series count increases? | >5 legend items: consider inline labels or small multiples | Medium |
-| Pie/donut chart slicing | Do small slices remain perceptible? | >5 categories: switch to horizontal bar chart | Medium |
-| Scatter plot overplotting | Do points remain distinguishable as data density increases? | >100 points in view: add opacity, jitter, or density contours | Low |
-| Label collision | Do axis labels, data labels, or annotations overlap at scale? | Any overlap at expected data volumes | Medium |
+| Grouped bar chart readability | Do individual bars remain distinguishable as groups increase? | >8 groups: bars become slivers, labels overlap (Cleveland & McGill — length encoding degrades with density) | Medium |
+| Legend overflow | Does the legend remain readable as series count increases? | >5 legend items: consider inline labels or small multiples (Cleveland & McGill — color hue encoding limit; Miller 1956) | Medium |
+| Pie/donut chart slicing | Do small slices remain perceptible? | >5 categories: switch to horizontal bar chart (Cleveland & McGill — angle + area encoding ranks 4-5) | Medium |
+| Scatter plot overplotting | Do points remain distinguishable as data density increases? | >100 points in view: add opacity, jitter, or density contours (Cleveland & McGill — position encoding degrades under overplotting) | Low |
+| Label collision | Do axis labels, data labels, or annotations overlap at scale? | Any overlap at expected data volumes (Cleveland & McGill — position encoding unreliable when labels occlude data) | Medium |
 
 Load `templates/cognitive-load-assessment.md` for the full Dual-Process and Cleveland & McGill reference with additional examples.
 
@@ -528,7 +536,7 @@ If the interface displays model-derived outputs (predictions, embeddings, simila
 
 **Skip this section** for interfaces that display only user-entered data or simple lookups with no model/algorithm layer.
 
-#### Feedback latency thresholds (Gergle + Nielsen)
+#### Feedback latency thresholds (Card, Moran & Newell 1983 Model Human Processor; cited via Nielsen)
 
 | Threshold | User Perception | Design Requirement |
 |-----------|----------------|-------------------|
@@ -558,20 +566,21 @@ Load `templates/accessibility-inclusion.md` for the full WCAG 2.1 AA checklist, 
 
 | Check | What to look for | Severity if missing |
 |-------|-----------------|---------------------|
-| Keyboard navigation | All interactive elements reachable and operable via keyboard (Tab, Enter, Escape, Arrow keys) | Critical |
-| Focus indicators | Visible focus ring on all interactive elements when navigating by keyboard | High |
+| Keyboard navigation | All interactive elements reachable and operable via keyboard (Tab, Enter, Escape, Arrow keys) (WCAG 2.1.1) | Critical |
+| Focus indicators | Visible focus ring on all interactive elements when navigating by keyboard (WCAG 2.4.7) | High |
 | Screen reader compatibility | All content has semantic HTML structure; images have alt text; form inputs have labels; ARIA roles where needed | High |
 | Color contrast | Text meets WCAG AA contrast ratios (4.5:1 normal text, 3:1 large text) | High |
 | Color-only indicators | No information conveyed by color alone — always paired with text, icon, or pattern | High |
-| Responsive layout | Interface functions on screen widths from 320px to 4K | Medium |
-| Touch targets | Interactive elements are at least 44x44px on touch devices | Medium |
-| Text scaling | Interface remains usable at 200% browser zoom | Medium |
-| Reduced motion | Respects `prefers-reduced-motion` — no essential information conveyed only through animation | Medium |
-| Language clarity | Instructions use plain language; jargon is defined or has tooltips; reading level appropriate for audience | Medium |
+| Responsive layout | Interface functions on screen widths from 320px to 4K (WCAG 1.4.10) | Medium |
+| Touch targets | Interactive elements are at least 44x44px on touch devices (WCAG 2.5.5 Level AAA; Apple HIG — widely adopted as AA best practice) | Medium |
+| Text scaling | Interface remains usable at 200% browser zoom (WCAG 1.4.4) | Medium |
+| Reduced motion | Respects `prefers-reduced-motion` — no essential information conveyed only through animation (WCAG 2.3.3 Level AAA — widely adopted as AA best practice) | Medium |
+| Language clarity | Instructions use plain language; jargon is defined or has tooltips; reading level appropriate for audience (WCAG 3.1.5; Hinds 1999 Expert Blind Spot) | Medium |
 | Glossary / help system | For interfaces using 3+ domain-specific terms (e.g., xG, VAEP, DEFCON, cosine distance), is there a glossary, tooltip system, or contextual help? Absence forces users to seek external documentation (high between-patch cost) | Medium (High for kiosk users) |
+| Context-sensitive help | If a glossary or help panel exists, does it filter to terms relevant to the current page/view? A static glossary showing ALL terms on every page adds extraneous cognitive load (Sweller) — users must scan past irrelevant definitions to find what they need | Medium |
 | Error messages | Errors are announced to screen readers (via `aria-live` or equivalent) | High |
-| Time limits | If the interface has timeouts, users can extend or disable them | High |
-| Demographic bias | Data visualizations don't embed bias (e.g., gendered defaults, culturally specific color meanings, age-biased interaction patterns) | Medium |
+| Time limits | If the interface has timeouts, users can extend or disable them (WCAG 2.2.1) | High |
+| Demographic bias | Data visualizations don't embed bias (e.g., gendered defaults, culturally specific color meanings, age-biased interaction patterns) (Friedman et al. Value-Sensitive Design) | Medium |
 
 #### Automated checks (grep-detectable)
 
@@ -596,18 +605,19 @@ Evaluate the navigation structure, error recovery paths, and overall information
 
 | Check | What to look for | Severity if missing |
 |-------|-----------------|---------------------|
-| Navigation coherence | Every page is reachable from the main navigation. No orphan pages | High |
-| Breadcrumb / location | User always knows where they are in the hierarchy | High |
-| Back button behavior | Browser back button works as expected (no broken history states) | Critical |
-| Deep linking | Key views can be bookmarked and shared via URL | Medium |
-| Search / find | For interfaces with >10 pages or >100 items, search functionality exists | Medium |
+| Navigation coherence | Every page is reachable from the main navigation. No orphan pages (Nielsen Heuristic 3; Pirolli & Card — dead-end patches) | High |
+| Breadcrumb / location | User always knows where they are in the hierarchy (Nielsen Heuristic 1; Pirolli & Card patch location) | High |
+| Back button behavior | Browser back button works as expected (no broken history states) (Nielsen Heuristic 3 User Control and Freedom) | Critical |
+| Deep linking | Key views can be bookmarked and shared via URL (Pirolli & Card — bookmarks reduce between-patch cost) | Medium |
+| Search / find | For interfaces with >10 pages or >100 items, search functionality exists (Pirolli & Card — direct access vs navigation foraging) | Medium |
 | Progressive disclosure | Complex features are hidden behind expandable sections, not visible by default | Medium |
-| Error recovery navigation | After an error, the user can navigate away and return without data loss | High |
-| Cross-reference links | Related information is linked (e.g., from a player stats page to that player's match history) | Medium |
-| Consistent hierarchy | Same number of clicks to reach equivalent-importance pages | Medium |
+| Error recovery navigation | After an error, the user can navigate away and return without data loss (Wood Layer 6 Resumption) | High |
+| Cross-reference links | Related information is linked (e.g., from a player stats page to that player's match history) (Pirolli & Card — within-patch scent trails) | Medium |
+| Consistent hierarchy | Same number of clicks to reach equivalent-importance pages (GOMS — operator count parity for equivalent goals) | Medium |
 | URL structure | URLs are human-readable and reflect the navigation hierarchy | Low |
-| Help discoverability | Help, documentation, or tooltips are findable when the user is confused | Medium |
-| Onboarding | First-time users have a clear starting point (not a blank screen with too many options) | High |
+| Help discoverability | Help, documentation, or tooltips are findable when the user is confused (Nielsen Heuristic 10; Pirolli & Card scent) | Medium |
+| Onboarding | First-time users have a clear starting point (not a blank screen with too many options) (GOMS — kiosk user has no compiled methods; Nielsen Heuristic 7) | High |
+| Onboarding discoverability | Is onboarding accessible from ALL entry points, not just the default landing page? Users arrive via bookmarks, shared links, or external search — if onboarding is only on the home page, most users never see it (Pirolli & Card Information Foraging — users who enter via a non-default patch have zero scent trail to the onboarding content) | High |
 
 #### Information Scent (Pirolli & Card)
 
@@ -633,11 +643,11 @@ Labels that use implementation vocabulary ("Action Values"), abbreviations ("Def
 
 | Pattern | Issue | Severity |
 |---------|-------|----------|
-| Hidden hamburger menu as only navigation on desktop | Desktop users expect visible navigation — hamburger is a mobile convention | Medium |
-| More than 3 levels of nested navigation | Users lose orientation beyond 3 levels | High |
-| Navigation labels that are ambiguous without context (e.g., "Overview", "Details", "More") | Labels must be self-describing — user shouldn't need to click to understand | Medium |
-| Pagination without alternative (no "show all" or "jump to page" option) | Users scanning for specific items are forced to page through sequentially | Low |
-| Tab-based navigation with dependent state (selecting Tab A changes what Tab B shows) | Hidden state coupling — user doesn't expect tab selection to affect other tabs | High |
+| Hidden hamburger menu as only navigation on desktop | Desktop users expect visible navigation — hamburger is a mobile convention (Nielsen Heuristic 4 — hamburger is mobile convention) | Medium |
+| More than 3 levels of nested navigation | Users lose orientation beyond 3 levels (Miller 1956 — path depth exceeds chunk capacity) | High |
+| Navigation labels that are ambiguous without context (e.g., "Overview", "Details", "More") | Labels must be self-describing — user shouldn't need to click to understand (Pirolli & Card — zero information scent) | Medium |
+| Pagination without alternative (no "show all" or "jump to page" option) | Users scanning for specific items are forced to page through sequentially (Pirolli & Card — forced sequential scanning increases cost) | Low |
+| Tab-based navigation with dependent state (selecting Tab A changes what Tab B shows) | Hidden state coupling — user doesn't expect tab selection to affect other tabs (Gestalt Common Region — tabs perceived as independent) | High |
 
 #### Multi-Surface Coherence (if applicable)
 
