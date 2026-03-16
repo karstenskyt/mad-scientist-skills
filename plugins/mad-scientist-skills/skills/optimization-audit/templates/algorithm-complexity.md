@@ -375,7 +375,70 @@ for i, item := range items {
 result := b.String()
 ```
 
-### 5. Regex Compilation in Loop to Pre-Compiled
+### 5. DataFrame Filter Inside Loop to Pre-Built Index
+
+The most dangerous hidden O(n²) in data science code. It doesn't look like a nested loop, but `df[df["col"] == val]` is a full O(n) scan, and calling it m times inside a loop creates O(n×m) behavior. On large DataFrames (tracking data, event logs, time series), this turns seconds into hours.
+
+**Why it's dangerous:** Unit tests pass instantly because synthetic fixtures have ~100 rows. The O(n²) only manifests at production scale (millions of rows). Code reviewers often rate it "Minor: performance concern" because the loop body looks simple — but the DataFrame scan is the hidden inner loop.
+
+**BAD** — O(n×m) DataFrame filter per iteration:
+```python
+# Python/Pandas: looks like O(m) but is actually O(n×m)
+# Each df[df["frame"] == frame] scans the entire 3M-row DataFrame
+for event in events:  # m = ~1,500 events
+    frame = event["frame"]
+    period = event["period"]
+    # This is O(n) — scans ALL 3M rows every time!
+    frame_data = tracking_df[
+        (tracking_df["frame"] == frame) & (tracking_df["period"] == period)
+    ]
+    closest_player = frame_data.loc[
+        frame_data["distance_to_ball"].idxmin(), "player_id"
+    ]
+    results.append({"event_id": event["id"], "player": closest_player})
+# Total: 1,500 events × 3,000,000 row scans = 4.5 BILLION comparisons
+```
+
+**GOOD** — O(n + m) with pre-built dict:
+```python
+# Python/Pandas: build index once O(n), then O(1) lookups
+# Pre-compute the answer for every (period, frame) in one pass
+closest_by_frame: dict[tuple[int, int], str] = {}
+for (period, frame), group in tracking_df.groupby(["period", "frame"]):
+    if "distance_to_ball" in group.columns and not group.empty:
+        closest_by_frame[(period, frame)] = group.loc[
+            group["distance_to_ball"].idxmin(), "player_id"
+        ]
+
+# Now O(1) lookup per event
+for event in events:
+    player = closest_by_frame.get((event["period"], event["frame"]), None)
+    results.append({"event_id": event["id"], "player": player})
+# Total: 3,000,000 rows (once) + 1,500 dict lookups = 3,001,500 operations
+```
+
+**Alternative** — vectorized merge instead of loop:
+```python
+# Best: avoid the loop entirely with a merge/join
+# Pre-compute closest player per frame as a DataFrame
+closest_per_frame = (
+    tracking_df.loc[tracking_df.groupby(["period", "frame"])["distance_to_ball"].idxmin()]
+    [["period", "frame", "player_id"]]
+    .rename(columns={"player_id": "closest_player"})
+)
+# Merge with events — no loop at all
+results = events_df.merge(closest_per_frame, on=["period", "frame"], how="left")
+```
+
+**Detection checklist:**
+- [ ] Any `df[df["col"] == variable]` inside a `for` loop? → **Always O(n²)**
+- [ ] Any `.loc[]`, `.iloc[]`, or boolean mask indexing that depends on a loop variable? → Check if the DataFrame is large
+- [ ] Is the outer loop over events/items and the inner DataFrame is tracking/time-series data (>100K rows)? → **Critical severity**, not Minor
+- [ ] Could the filter be replaced by `groupby()` + dict, `set_index()` + `.loc[]`, or a merge/join? → Almost always yes
+
+**Severity escalation rule:** On pipeline code that touches tracking data (millions of rows), DataFrame-filter-inside-loop is **always Critical**, never Minor. The scale of tracking data means O(n²) will always exceed pipeline timeouts.
+
+### 6. Regex Compilation in Loop to Pre-Compiled
 
 **BAD** -- recompiles on every iteration:
 ```python
@@ -552,3 +615,5 @@ Systematic approach for reviewing hot paths during Phase 2.
 | Identical expensive computation across loop iterations | Same clustering, matrix factorization, or spatial index built for iterations sharing identical input | Cache by input key (frame ID, group ID) or input hash; pre-compute once outside loop |
 | Map-reduce loop accumulated as Python list | `results = []; for group in groups: results.append(compute(group))` where final output is `sum`/`count`/`mean` over results | Apply reducing function directly (generator + `sum`/`mean`); in Spark: distribute via `applyInPandas` + `groupBy().agg()` |
 | Batch-ready inner function hidden behind scalar wrapper | Function accepts `(df, x: float, y: float)` but its core math (matrix ops, numerical integration, NumPy broadcasting) already handles `(n, d)` arrays — the wrapper only exposes scalars | Look past the public signature at the internal computation; create a batch wrapper that hoists setup and passes stacked `(N, 2)` inputs — often 10-20x speedup with minimal code change |
+| **DataFrame boolean mask filtering inside a loop** | `for item in items: subset = df[df["key"] == item["key"]]` — full DataFrame scan per iteration | Pre-build a dict/index: `lookup = dict(iter(df.groupby("key")))` or `df.set_index("key")`, then O(1) lookup per iteration. **This is the #1 hidden O(n²) in data science code** — it doesn't look like a nested loop, but `df[df["col"] == val]` is O(n) and calling it m times is O(n×m). On tracking data (millions of rows), this turns a 30-second pipeline into a 1-hour timeout. |
+| Benchmark tests passing on synthetic data | Tests use 100-row fixtures but production has millions of rows — O(n²) is invisible at n=100 | Add at least one benchmark with production-scale data volume. A benchmark that passes on 100 rows but OOMs on 3M rows is a **false green**. For pipeline code touching tracking/event data, always include a scaling test. |

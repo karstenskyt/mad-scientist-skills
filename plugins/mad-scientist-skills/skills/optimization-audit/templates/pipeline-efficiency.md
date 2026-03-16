@@ -1009,6 +1009,7 @@ When reviewing a loop that calls a function N times:
 | Unconditional source download | Network I/O for data already in Delta | Check target partition exists before downloading source |
 | Multi-pass file parsing | 2x I/O for same file | Merge extraction into single pass |
 | Missing download cache for static sources | Repeated downloads of immutable data from GitHub/S3/CDN | Cache to UC Volume or local storage on first download |
+| **DataFrame filter inside pipeline loop** | `for event in events: df[df["key"] == event["key"]]` — full O(n) scan per event, O(n×m) total | Pre-build `groupby()` dict or `set_index()` before loop; merge/join instead of loop. On tracking-scale data (>100K rows), always Critical. See algorithm-complexity.md §5 for full pattern. |
 
 ## Best Practices
 

@@ -1053,3 +1053,4 @@ N = number of parallel processors/threads
 - Running soak tests for only a few minutes — leaks may take hours to manifest
 - Ignoring tail latency (p99, p99.9) — the users who experience the worst latency are often the most valuable (large carts, complex queries)
 - Optimizing before profiling — "premature optimization is the root of all evil" applies when you have not measured
+- **Benchmarking only with synthetic/toy data** — a benchmark that passes on 100 rows but OOMs or times out on 3M rows is a false green. For pipeline code that processes tracking data, event streams, or time-series data, include at least one benchmark at production-scale volume. If production data is unavailable, generate synthetic data at the expected scale (`np.random.default_rng(42)` + target row count). The O(n²) anti-patterns that are invisible at n=100 become Critical at n=1,000,000.
