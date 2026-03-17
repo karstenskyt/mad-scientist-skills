@@ -190,6 +190,26 @@ if not new_ids:
 
 **Audit instruction:** For every ingestion module (not compute/analytics), verify that this pattern or an equivalent exists. If the pipeline unconditionally re-downloads and re-writes on every scheduled run, flag it as High severity. Count the total HTTP requests, `df.count()` calls, and Delta writes that occur on a no-op run and include these numbers in the finding.
 
+#### Loop-invariant computation anti-patterns
+
+A function called inside a loop where some or all of its arguments are constant across iterations. The invariant portion should be computed once outside the loop and the result reused. This is the algebraic equivalent of factoring out a constant: `f(invariant, x_i)` → precompute `c = partial_f(invariant)`, then call `c(x_i)` per iteration.
+
+**Severity scale:**
+- **Critical**: N > 1000 iterations (batch compute, frame-level pipelines, large-dataset loops)
+- **Important**: 10 < N < 1000 iterations
+- **Minor**: N ≤ 10 iterations
+
+| Language | Pattern | Issue | Severity |
+|----------|---------|-------|----------|
+| Python | `for .* in .*:.*\w+\(.*grid\|matrix\|model\|table\|config\b` (same non-loop variable passed to a function on every iteration) | Loop-invariant argument — compute the invariant factor once outside the loop | Scales with N |
+| Python | `for .* in .*:.*\w+ \* \w+_grid \* \w+_grid` or `\w+ \* \w+ \* \w+` where two of three operands are non-loop variables | Redundant multiplication of constant factors per iteration; hoist `constant = a * b` before loop | Scales with N |
+| Python | `for .* in .*:.*np\.(dot\|matmul\|einsum)\(.*\)` where one operand does not change between iterations | Matrix/tensor operation with invariant operand; precompute or cache the invariant contraction | Critical (>1000 iters) |
+| Python | `for .* in .*:.*\.predict\(\|\.transform\(\|\.encode\(` where the model/transformer and non-varying input arrays are loop-invariant | ML inference call with invariant model and partial invariant input; batch the varying inputs instead | Critical (>1000 iters) |
+| JS/TS | `for .* of .*\) \{.*const .* = .*\(.*\)` where the inner `const` depends only on outer-scope variables | Re-derived constant inside loop body; hoist to loop preamble | Scales with N |
+| Any | `for .* in .*:.*= f(A, B)` where A and B are never reassigned in the loop body | Pure function call with loop-invariant arguments on every iteration | Scales with N |
+
+**Audit instruction:** For every loop over a large collection (tracking frames, event sequences, batch items), inspect every function call in the loop body and classify each argument as loop-varying or loop-invariant. If a called function accepts M arguments and K ≥ 1 are invariant, flag the call and recommend restructuring to compute the invariant factor once. Pay particular attention to multiplication chains (e.g., `ppcf * grid_A * grid_B` where `grid_A * grid_B` is a constant tensor) and to any function that loads, parses, or constructs data structures from non-varying inputs.
+
 #### Logging overhead anti-patterns
 
 | Language | Pattern | Issue | Severity |
@@ -339,6 +359,7 @@ Evaluate memory allocation patterns, leak potential, cache sizing, and GC pressu
 | Batch accumulation before write | Accumulating all data (via `pd.concat()`, list append, or loading all files) before a single write instead of per-partition write-and-release | High |
 | Missing per-partition release | Processing multiple partitions without `del` + `gc.collect()` between partitions; peak memory = sum of all partitions instead of max single partition | High |
 | Missing memory budget documentation | No documented limits for in-memory operations (e.g., max rows for `.toPandas()`, max payload size) | Medium |
+| Memory budget violation for remote compute containers | Dataset or model loaded into memory without verifying that its size fits within the execution environment's RAM. Remote compute containers (HF Jobs, Lambda, Fargate, Databricks serverless UDFs) have fixed, non-configurable memory limits that differ from the developer's local machine. Severity: Critical when dataset_size > 50% of container RAM; High when dataset_size > 25%. Mitigations: column-selective loading (`usecols`, `.select()`), streaming/chunked reads, per-partition processing with release, or a larger container class. | Critical when >50% RAM |
 
 **Scale-aware assessment:** For each `.toPandas()`, `.collect()`, `pd.read_csv()`, `pd.concat()`, or similar full-load operation, estimate whether the current data volume is close to a memory cliff. Check project documentation (TODO, ROADMAP) for known OOM risks. A function that works at 3M rows but will OOM at 6M is a High finding even if it works today. **Any code that accumulates data from multiple partitions/files into memory before writing must be flagged regardless of current data size** — the pattern itself is the anti-pattern, not the volume. The fix is always the Splitter pattern: load one partition, process, write, release, repeat.
 
@@ -357,6 +378,10 @@ Evaluate memory allocation patterns, leak potential, cache sizing, and GC pressu
 | Java | `static.*Map\|static.*List\|static.*Set` without size limit | Static collection leak |
 | Java | `ThreadLocal` without `remove()` in finally | Thread-local memory leak |
 | Any | `.*cache.*=.*\{\}` without TTL/max entries | Unbounded cache |
+| Python | `pd\.read_csv\(\|pd\.read_parquet\(\|pd\.read_json\(` loading an entire dataset without `usecols=`, `chunksize=`, or a preceding size check | Full dataset loaded without column pruning or size verification — may exceed container RAM | Critical (>50% RAM) |
+| Python | `\.load_dataset\(\|load_from_disk\(\|Dataset\.from_` without `.select_columns(` or a memory size assertion | HF/Arrow dataset loaded in full without column pruning — remote container RAM may be insufficient | Critical (>50% RAM) |
+| Python | `torch\.load\(\|np\.load\(\|joblib\.load\(` without a preceding `os\.path\.getsize\(` or documented size check against container RAM | Large artifact loaded without verifying it fits in container memory | High |
+| Any | `# TODO.*memory\|# FIXME.*OOM\|# NOTE.*RAM\|# WARN.*size` near a data-loading call | Acknowledged memory risk — verify container RAM budget is documented and enforced | High |
 
 **Output:** Memory management findings with leak risk assessment and remediation recommendations.
 
@@ -632,6 +657,7 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Schema merge on full overwrite | Using `mergeSchema=true` with `mode="overwrite"` — causes schema conflicts when column types change; use `overwriteSchema=true` for full overwrites | Medium |
 | Driver-bound computation | Work pulled to driver via `.toPandas()` that could stay distributed via `applyInPandas` / `mapInPandas` grouped by natural partition key (match_id, game_id, user_id). Chunk-and-release fixes OOM but does not fix throughput — executors sit idle while the driver processes sequentially | High |
 | Suboptimal group key for distributed execution | Using coarse grouping (e.g., `match_id`) when finer grouping (e.g., `(match_id, period)` or `(match_id, batch_id)`) would increase parallelism without breaking correctness. Apply the **formal decomposability test**: (1) loop body is independent per group — no cross-group state or ordering dependency, (2) final result is an aggregation (sum, count, mean, max) over per-group outputs, (3) aggregation is associative and commutative — partial results can be combined in any order. If all three hold, use finer group keys + Spark-native aggregation. When natural sub-groups don't exist, create **synthetic partition keys**: `batch_id = (monotonic_key / batch_size).cast("int")`. Size groups so `n_rows × n_cols × 8 bytes / n_groups < UDF_memory_limit` (1 GB on serverless) | Medium |
+| Loop-invariant computation in batch loops | A function called N times inside a loop where K of its M arguments are loop-invariant (same value on every iteration). The invariant factor should be computed once before the loop and reused. Common pattern: `result_i = f(constant_grid_A * constant_grid_B, varying_x_i)` where `constant_grid_A * constant_grid_B` is recomputed N times instead of once. Severity: Critical when N > 1000 (frame-level or batch compute loops), Important when 10 < N ≤ 1000, Minor when N ≤ 10. | Critical (N > 1000) |
 | Redundant setup in per-item function calls | A function called N times in a loop that repeats identical setup (DataFrame splits, coordinate conversions, model loading, matrix construction) on each call when input data is shared across calls. Should accept batched inputs (e.g., `(n, 2)` array of points instead of scalar pair) | High |
 | Missing executor-side model caching | UDF loads ML model or large lookup table on every group invocation instead of caching at module level. On serverless (no broadcast variables), use a module-level `_model_cache: dict[str, object]` that lazy-loads from shared storage (UC Volume, S3, GCS) inside the UDF body. Spark reuses Python worker processes across groups, so the model is loaded once per executor, not once per group | Medium |
 | Cache-eligible repeated computation across iterations | Same expensive computation (hierarchical clustering, spatial indexing, model loading) repeated for iterations sharing identical input data. Should cache by input hash or group key | Medium |
@@ -639,6 +665,7 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Non-distributable computation | Operations that CANNOT be migrated to `applyInPandas` — identify these to avoid wasted refactoring effort. Criteria: (a) global operations requiring cross-group state (TF-IDF vectorization, global normalization, cross-source entity resolution), (b) training operations that need the full corpus for statistical validity, (c) operations where result depends on relative ordering across the full dataset. These must stay on the driver or use a single large executor. Document explicitly why distribution is not possible | Low (informational) |
 | Multi-pass distributed architecture | Pipeline stages with different grouping requirements that should chain multiple `applyInPandas` calls with progressively coarser grouping. Example: credit assignment is per-event within a period (group by `(match_id, period)`), but value estimation needs all credits from a match (group by `match_id`). Each pass writes an intermediate Spark DataFrame; the next pass reads it with a coarser group key | Medium |
 | Batch-ready inner function not exposed | A function called N times in a loop where the function's core computation (matrix operations, numerical integration) already supports array/batch inputs internally, but the wrapper function accepts only scalars. The batch version may only need to hoist setup and call the existing computation with stacked inputs — check the function's inner math, not just its public signature | High |
+| Memory budget violation for remote compute containers | A dataset, model, or intermediate result is loaded into full memory inside a pipeline step without verifying it fits within the execution environment's RAM. Remote compute environments (HF Jobs GPU instances, Lambda, Fargate, Databricks serverless UDF executors) have fixed, non-configurable memory limits that may be substantially smaller than a developer's local machine or a Spark driver. Loading a 12 GB dataset on a 16 GB driver node leaves no headroom for Spark overhead and will OOM. Mitigations: column-selective loading, streaming/chunked reads, per-partition write-and-release, or selecting a larger container class. Severity: Critical when dataset_size > 50% of container RAM; High when dataset_size > 25% of container RAM. | Critical (>50% RAM) |
 
 #### Grep patterns
 
@@ -664,6 +691,8 @@ Load `templates/pipeline-efficiency.md` for the full pipeline efficiency referen
 | Python | `for i in range\(len\(df\)\):` calling a function that accepts DataFrame + scalar from that row | Potential batched-function-call optimization — pass all scalars at once via vectorized call |
 | Python | `def .*\(.*df.*,.*x.*float.*,.*y.*float` (function accepting DataFrame + single point) | Candidate for batch version accepting `(n, 2)` array of points instead of scalar pair |
 | Python | Same `groupby\(\)` or clustering/indexing call repeated inside a loop where input data doesn't change between iterations | Cache-eligible: pre-compute once outside loop or cache by input hash |
+| Python | `for .* in .*:.*\w+ \* \w+_grid\|\w+_grid \* \w+` where `\w+_grid` is not the loop variable | Loop-invariant grid multiplication — hoist `constant = grid_A * grid_B` before loop |
+| Python | `for .* in .*:.*\w+\(.*\w+_grid\b.*,.*\w+_grid\b` (non-loop variables passed to a function on every iteration) | Loop-invariant function arguments — factor out the invariant computation before the loop |
 | Python/Spark | `write_delta_table\(` or `\.saveAsTable\(` or `replaceWhere` inside a `for` loop without a preceding `spark\.catalog\.tableExists\(` or `spark\.table\(.*\)\.select\(.*\)\.distinct\(\)\.collect\(\)` guard | Unconditional write — ingestion no-op waste; add skip guard before fetch+write loop |
 | Python | `def main\(` in ingestion module where the function body contains `fetch_url\(` or `requests\.get\(` or library data fetcher (e.g., `sb\.matches\(`, `load_open_data\(`) but no `spark\.catalog\.tableExists` or equivalent existence check | Missing ingestion skip guard — every scheduled run re-downloads all data |
 | Python | `ET\.iterparse\(` or `ET\.parse\(` called multiple times on the same file path within one function | Multi-pass XML parsing — merge into single pass to halve I/O |

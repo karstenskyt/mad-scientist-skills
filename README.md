@@ -194,7 +194,7 @@ Two-mode, single-tier optimization analysis: **planning** (before code) and **au
 
 | Phase | Area | Planning | Audit |
 |-------|------|:--------:|:-----:|
-| 0 | Anti-pattern scanning (algorithm, memory, concurrency, database, HTTP N+1, ingestion no-op waste, logging) | | x |
+| 0 | Anti-pattern scanning (algorithm, memory, concurrency, database, HTTP N+1, ingestion no-op waste, loop-invariant computation, logging) | | x |
 | 0.5 | Documentation & tech debt scan (TODO/ROADMAP/PLAN keyword search) | | x |
 | 1 | Performance surface discovery | x | x |
 | 2 | Algorithm & data structure efficiency | | x |
@@ -219,7 +219,7 @@ Two-mode, single-tier optimization analysis: **planning** (before code) and **au
 | `caching-strategies.md` | Cache architecture, invalidation patterns, stampede protection, HTTP caching |
 | `concurrency-patterns.md` | Thread pool sizing, async/await correctness, lock contention, backpressure |
 | `frontend-performance.md` | Core Web Vitals, bundle optimization, image optimization, API responses |
-| `pipeline-efficiency.md` | Batch/streaming trade-offs, incremental processing, ingestion skip guards, Spark/dbt tuning, distributed execution (`applyInPandas`), redundant computation detection |
+| `pipeline-efficiency.md` | Batch/streaming trade-offs, incremental processing, ingestion skip guards, Spark/dbt tuning, distributed execution (`applyInPandas`), redundant computation detection, loop-invariant computation in batch loops, remote container memory budget violations |
 | `profiling-benchmarking.md` | Load testing tools, micro-benchmarking, regression detection in CI |
 | `cloud-cost-optimization.md` | Right-sizing, auto-scaling, storage tiering, driver-vs-executor cost analysis, FinOps practices |
 
