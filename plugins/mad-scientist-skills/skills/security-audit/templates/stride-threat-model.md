@@ -244,6 +244,99 @@ Trust boundaries are where data crosses from one security context to another. Ap
 
 **Controls:** WAF rules, DDoS protection, network segmentation, ingress controls, IDS/IPS
 
+### Cross-Organizational Boundaries
+
+When data, models, or computation cross organizational boundaries — between partner companies, consortia members, data vendors, or collaborative environments — a distinct threat class emerges. These boundaries involve parties that are neither fully trusted nor fully untrusted: they are authorized collaborators with potentially conflicting interests.
+
+#### Outbound Data Sharing
+
+```
+[Internal Data Store] ---> [Data Sharing Protocol] ---> [External Partner]
+         ^                         ^                          ^
+         |                         |                          |
+     Your data               Trust boundary              Their environment
+   (you control)          (contractual + technical)     (you do NOT control)
+```
+
+**Key threats:**
+- **Information Disclosure**: Data shared beyond agreed scope; recipient re-identifies anonymized data; aggregate statistics leak individual records
+- **Repudiation**: Partner claims they never received data, or denies how they used it
+- **Tampering**: Shared data modified after transmission without detection
+
+**Controls:**
+- Data minimization (share only what is contractually required)
+- Purpose limitation (technical enforcement, not just contractual)
+- Differential privacy on shared aggregates (epsilon-bounded noise)
+- Immutable audit logs of all shared data with recipient, timestamp, and scope
+- Data sharing agreements with explicit retention and deletion clauses
+- Delta Sharing or equivalent protocols with revocable access
+
+**Questions to ask:**
+- What is the minimum data needed for the partner's purpose?
+- Can the partner re-identify individuals from the shared data?
+- Is there an audit trail proving what was shared with whom and when?
+- Can access be revoked if the agreement is terminated?
+
+#### Inbound Data and Model Ingestion
+
+```
+[External Source] ---> [Ingestion Boundary] ---> [Internal Processing]
+       ^                       ^                        ^
+       |                       |                        |
+  Their artifact          Validation gate           Your environment
+(model, dataset,       (schema, integrity,        (trusted execution)
+  API response)         malware scanning)
+```
+
+**Key threats:**
+- **Tampering**: Poisoned training data or manipulated model weights that degrade or bias downstream models
+- **Spoofing**: Model artifacts that impersonate a trusted source (no provenance verification)
+- **Information Disclosure**: Malicious model artifacts that exfiltrate data during inference (trojan models)
+- **Elevation of Privilege**: Deserialization attacks via pickle, torch.load, or other unsafe model formats (CWE-502)
+
+**Controls:**
+- Schema validation on all ingested data before processing
+- Checksum/signature verification on model artifacts
+- Prefer safe serialization formats (safetensors, XGBoost JSON) over pickle-based formats
+- Malware scanning on downloaded model files (HuggingFace built-in scanning, modelscan)
+- Authenticated connections to external registries (explicit tokens, not ambient credentials)
+- Sandboxed execution for untrusted models (separate compute, network isolation)
+
+**Questions to ask:**
+- Can you verify the provenance of every external model and dataset?
+- What happens if an external data source is compromised?
+- Are ingested artifacts validated before entering the trusted processing environment?
+- Could a malicious model artifact execute code during loading?
+
+#### Collaborative Compute Environments
+
+```
+[Party A Data] --->                            ---> [Shared Result]
+                    [Collaborative Environment]
+[Party B Data] --->  (Clean Room, Federated,   ---> [Shared Result]
+                      Secure Enclave)
+```
+
+**Key threats:**
+- **Information Disclosure**: Raw data leaking through the collaborative environment (insufficient isolation); model updates revealing properties of training data (gradient leakage, membership inference)
+- **Tampering**: A malicious participant contributing poisoned updates that degrade the shared model or bias results toward their advantage
+- **Spoofing**: A participant claiming to contribute genuine computation while submitting fabricated or recycled results (free-riding)
+- **Repudiation**: A participant denying their contribution or disputing the integrity of the collaborative result
+
+**Controls:**
+- Secure aggregation (multiparty homomorphic encryption, secret sharing, or trusted execution environments)
+- Differential privacy on shared model updates or query results
+- Contribution verification (gradient cosine similarity, leave-one-out validation)
+- Cryptographic audit trail of all contributions (hash log with participant identity and timestamp)
+- Result verification (all parties can confirm aggregation correctness without seeing individual inputs)
+- Contractual governance (consortium agreement, purpose limitation, exit clauses)
+
+**Questions to ask:**
+- Can any participant infer another participant's raw data from the shared outputs?
+- Can a malicious participant degrade the shared result for others?
+- Can participants verify the collaborative computation was performed correctly?
+- What happens if a participant withdraws — can they demand deletion of their contributions?
+
 ---
 
 ## Threat Severity Scoring

@@ -83,6 +83,66 @@ These apply regardless of cloud provider.
 | Recovery testing | Backups tested for recoverability periodically | Medium |
 | Cross-region | Critical backups replicated to a second region | Medium |
 
+### Confidential Computing
+
+Confidential computing protects data **in use** — the third leg of the data protection triad (alongside encryption at rest and in transit). Trusted Execution Environments (TEEs) create hardware-secured enclaves where code and data are invisible to the host OS, hypervisor, and cloud provider during processing.
+
+| Control | What to check | Severity if missing |
+|---------|---------------|---------------------|
+| TEE availability | If processing sensitive data in shared/cloud environments: are confidential computing VM types available and used? | Context-dependent |
+| Attestation verification | TEE attestation reports are cryptographically verified before trusting enclave output | High (if TEEs are used) |
+| Memory encryption | Hardware memory encryption enabled (AMD SEV-SNP, Intel TDX) | High (if TEEs are used) |
+| Enclave minimization | Only security-critical code runs inside the TEE; non-sensitive logic runs outside | Medium |
+
+**Platform-specific TEE support:**
+
+| Provider | TEE Technology | VM Types / Services |
+|----------|---------------|---------------------|
+| **Azure** | AMD SEV-SNP | DCasv5, DCadsv5, ECasv5 series; Azure Databricks (classic clusters only, not serverless) |
+| **Azure** | Intel TDX | DCesv5, ECesv5 series (limited GA) |
+| **AWS** | Nitro Enclaves | Any Nitro-based instance with `EnclaveOptions.Enabled = true` |
+| **GCP** | AMD SEV-SNP | C2D, N2D confidential VM types; Confidential GKE nodes |
+| **GCP** | Intel TDX | C3 confidential VMs (preview) |
+
+**Important constraints:**
+- Serverless compute (AWS Lambda, Azure Functions, Databricks Serverless) generally does **not** support confidential computing — customers cannot select VM types
+- Databricks Clean Rooms run on serverless and therefore **cannot** use TEEs
+- TEE-based confidential computing requires explicit cluster or VM configuration; it is not a default
+
+**When to require confidential computing:**
+- Processing third-party data under contractual obligation to protect data in use
+- Multi-party computation where no single party should see all inputs
+- Aggregation servers in collaborative/federated architectures
+- Regulatory requirements that mandate data-in-use protection
+
+### Privacy-Preserving Computation
+
+Beyond encryption, these techniques enable computation over sensitive data while mathematically limiting what can be learned from the outputs.
+
+| Technique | What it does | When to use | Maturity |
+|-----------|-------------|-------------|----------|
+| **Differential Privacy (DP)** | Adds calibrated noise to query outputs or model updates, bounding what can be inferred about any individual record | Query-level privacy on analytics; training-time privacy for ML models (DP-SGD) | Production-ready (Google, Apple, US Census deploy at scale) |
+| **Homomorphic Encryption (HE)** | Compute on encrypted data without decryption; server never sees plaintext | Cross-organizational analytics where a central server aggregates encrypted contributions from multiple parties | Practical for addition/multiplication-heavy workloads (CKKS, BFV schemes); latency overhead 100-1000x |
+| **Secure Multi-Party Computation (SMPC)** | Multiple parties jointly compute a function over their inputs without revealing individual inputs to each other | Joint analytics between organizations with conflicting interests and no trusted third party | Research-to-production; practical for 2-10 parties with modern protocols |
+| **Private Set Intersection (PSI)** | Two parties discover common elements in their datasets without revealing non-overlapping elements | Entity matching across organizations (e.g., finding shared customers without exposing full lists) | Production-ready (Google PSI library); used in ad measurement |
+
+**Libraries and tools:**
+
+| Library | Technique | Language |
+|---------|-----------|----------|
+| OpenDP | Differential privacy | Python, Rust |
+| IBM diffprivlib | Differential privacy (scikit-learn compatible) | Python |
+| Google DP Library | Differential privacy | C++, Java, Go |
+| Microsoft SEAL | Homomorphic encryption (BFV, CKKS) | C++ |
+| Concrete ML (Zama) | HE-based ML inference | Python |
+| MP-SPDZ | Multi-party computation | C++ with Python bindings |
+| Google PSI | Private set intersection | C++ |
+
+**Questions to ask:**
+- Does the system process data from multiple parties who should not see each other's raw data?
+- Do query or model outputs need mathematical privacy guarantees?
+- Are there contractual or regulatory requirements for data-in-use protection?
+
 ---
 
 ## Platform-Specific Guidance

@@ -14,7 +14,7 @@ A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/cla
 | **final-review** | Pre-commit quality gate — code review, documentation check, and architecture diagram generation | `/mad-scientist-skills:final-review` |
 | **observability-audit** | Two-tier observability audit (Standard/Enterprise) — instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, SLIs/SLOs (beta) | `/mad-scientist-skills:observability-audit` |
 | **optimization-audit** | Single-tier optimization audit — algorithm efficiency, database queries, caching, concurrency, pipelines, distributed execution, cloud cost, profiling | `/mad-scientist-skills:optimization-audit` |
-| **security-audit** | Two-tier security audit (Standard/Enterprise) — STRIDE, OWASP Top 10, infrastructure hardening, supply chain | `/mad-scientist-skills:security-audit` |
+| **security-audit** | Two-tier security audit (Standard/Enterprise) — STRIDE, OWASP Top 10, ML/AI model security, AI regulatory compliance, infrastructure hardening, supply chain | `/mad-scientist-skills:security-audit` |
 
 ## Installation
 
@@ -284,17 +284,18 @@ Two-mode, two-tier security analysis: **planning** (before code) and **audit** (
 
 | Phase | Area | Planning | Audit |
 |-------|------|:--------:|:-----:|
-| 0 | Real-time code pattern scanning | | x |
+| 0 | Real-time code pattern scanning (incl. ML deserialization) | | x |
 | 1 | Security surface mapping | x | x |
-| 2 | STRIDE threat modeling | x | |
-| 3 | Infrastructure hardening | | x |
+| 2 | STRIDE threat modeling (incl. cross-organizational boundaries) | x | |
+| 3 | Infrastructure hardening (incl. confidential computing) | | x |
 | 4 | OWASP Top 10 code scanning | | x |
+| 4b | ML/AI model security (serialization, provenance, poisoning) | | x |
 | 5 | Web security headers | | x |
 | 6 | API boundary security | | x |
 | 7 | Authentication & session management | x | x |
 | 8 | Supply chain & dependency audit | | x |
 | 9 | Secrets management | x | x |
-| 10 | Data classification | x | x |
+| 10 | Data classification & AI regulatory compliance | x | x |
 | 11 | Monitoring & incident response | x | x |
 | 12 | Findings report | x | x |
 
@@ -302,8 +303,8 @@ Two-mode, two-tier security analysis: **planning** (before code) and **audit** (
 
 | Template | Purpose |
 |----------|---------|
-| `stride-threat-model.md` | STRIDE categories, trust boundaries, severity scoring |
-| `infrastructure-hardening.md` | Cloud-agnostic + AWS/Azure/GCP/K8s hardening checklists |
+| `stride-threat-model.md` | STRIDE categories, trust boundaries (incl. cross-organizational), severity scoring |
+| `infrastructure-hardening.md` | Cloud-agnostic + AWS/Azure/GCP/K8s hardening, confidential computing, privacy-preserving computation |
 | `dependency-audit.md` | Per-ecosystem audit commands, lockfile integrity, SBOM |
 | `web-security-headers.md` | HTTP security headers with framework-specific examples |
 | `api-security-checklist.md` | Input validation, rate limiting, JWT security |

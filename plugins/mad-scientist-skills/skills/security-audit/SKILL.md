@@ -1,6 +1,6 @@
 ---
 name: security-audit
-description: Comprehensive security audit with two modes and two tiers. Planning mode reviews architecture for security gaps (STRIDE threat modeling, auth design, data classification). Audit mode scans code, infrastructure, dependencies, and secrets for vulnerabilities. Covers OWASP Top 10, web security headers, API boundary security, authentication and session management, CWE references, and infrastructure hardening. Each phase has Standard (free tools, always actionable) and Enterprise (paid services, aspirational checklist) tiers. Use when asked to "security audit", "threat model", "check for vulnerabilities", "review security", or "harden this".
+description: Comprehensive security audit with two modes and two tiers. Planning mode reviews architecture for security gaps (STRIDE threat modeling, auth design, data classification, AI regulatory compliance). Audit mode scans code, infrastructure, dependencies, and secrets for vulnerabilities. Covers OWASP Top 10, ML/AI model security (serialization safety, provenance, poisoning), AI regulatory compliance (EU AI Act, biometric privacy, EU Data Act), web security headers, API boundary security, authentication and session management, CWE references, infrastructure hardening, confidential computing, and privacy-preserving computation. Each phase has Standard (free tools, always actionable) and Enterprise (paid services, aspirational checklist) tiers. Use when asked to "security audit", "threat model", "check for vulnerabilities", "review security", or "harden this".
 ---
 
 # Security Audit
@@ -35,7 +35,7 @@ Determine which mode to operate in based on the project state:
 | Source code and/or IaC files exist | **Audit** | Concrete artifacts to analyze |
 | Both code and a request to "threat model" | **Both** | Run planning phases on architecture, audit phases on code |
 
-When in doubt, ask the user. If both modes apply, run all 13 phases.
+When in doubt, ask the user. If both modes apply, run all 14 phases.
 
 ## Severity classification
 
@@ -75,6 +75,10 @@ Scan all source files for these patterns. Each match requires manual review — 
 | `pickle.loads(` | Python | Deserialization of untrusted data | CWE-502 | A08 |
 | `pickle.load(` | Python | Deserialization of untrusted data | CWE-502 | A08 |
 | `yaml.load(` (without `Loader=SafeLoader`) | Python | Deserialization of untrusted data | CWE-502 | A08 |
+| `torch.load(` (without `weights_only=True`) | Python | ML model deserialization via pickle | CWE-502 | A08 |
+| `joblib.load(` | Python | ML model deserialization via pickle | CWE-502 | A08 |
+| `mlflow.pyfunc.load_model(` | Python | Indirect pickle via MLflow Python flavor | CWE-502 | A08 |
+| `numpy.load(.*allow_pickle` | Python | NumPy array deserialization via pickle | CWE-502 | A08 |
 | `dangerouslySetInnerHTML` | React | Cross-site scripting | CWE-79 | A03 |
 | `document.write(` | JS | Cross-site scripting | CWE-79 | A03 |
 | `.innerHTML\s*=` | JS | Cross-site scripting | CWE-79 | A03 |
@@ -274,6 +278,59 @@ Use these patterns to find common vulnerabilities per language:
 For each finding, record the file path, line number, OWASP category, CWE, severity, and recommended fix.
 
 **Output:** Code security findings table with CWE references and remediation steps.
+
+---
+
+### Phase 4b: ML/AI Model Security (Audit mode)
+
+If the project trains, deploys, or consumes machine learning models, audit the ML-specific security surface. ML models introduce threats that standard code scanning does not cover: unsafe deserialization via model loading, training data leakage through model parameters, and unverified model provenance.
+
+Skip this phase if the project has no ML components (no model training, no model inference, no model artifact storage).
+
+#### Standard tier
+
+**Model serialization safety:**
+
+| Check | What to look for | CWE | Severity |
+|-------|-----------------|-----|----------|
+| No unsafe pickle loading | `torch.load()` must use `weights_only=True` (PyTorch 2.6+ default). `joblib.load()` and `pickle.load()` must never load untrusted artifacts. | CWE-502 | Critical |
+| MLflow flavor audit | `mlflow.pyfunc.load_model()` may use pickle internally depending on the serializer chosen at model log time. Document which serializer each registered model uses. | CWE-502 | High |
+| Safe format preference | Prefer `safetensors` (Hugging Face) over pickle-based formats for Transformer weights. Prefer XGBoost JSON (`save_raw("json")`) over pickle for tree models. | CWE-502 | Medium |
+| Model artifact integrity | Downloaded model artifacts should be verified (checksums, signatures, or trusted registry with access controls). | CWE-494 | High |
+| No `numpy.load(allow_pickle=True)` | NumPy arrays from untrusted sources must not enable pickle deserialization. | CWE-502 | High |
+
+**Grep patterns for ML serialization:**
+
+| Pattern | Issue |
+|---------|-------|
+| `torch\.load\(` without `weights_only=True` in same call | Unsafe PyTorch model loading |
+| `torch\.save\(` | Verify saved models are not redistributed without integrity checks |
+| `joblib\.(load\|dump)\(` | Pickle-based serialization — verify trust boundary |
+| `mlflow\.pyfunc\.load_model\(` | Audit MLflow serializer flavor (check model metadata) |
+| `safetensors` | Good — verify this is used for Transformer weights |
+| `\.save_raw\("json"\)` | Good — verify XGBoost uses JSON format, not pickle |
+
+**Model provenance and trust:**
+
+| Check | What to look for | CWE | Severity |
+|-------|-----------------|-----|----------|
+| Model source authentication | Models loaded from external registries (HF Hub, MLflow) must use authenticated connections with explicit tokens | CWE-287 | High |
+| Model scanning | External model artifacts should be scanned for malware before loading (HuggingFace `safetensors` includes built-in pickle scanning) | CWE-506 | Medium |
+| Model versioning | Model artifacts must be versioned and traceable to a specific training run, dataset, and code commit | CWE-1059 | Medium |
+| Access control on model registry | Write access to model registries restricted to training pipelines; inference consumers have read-only access | CWE-284 | High |
+
+#### Enterprise tier
+
+| Control | Purpose | Tool / Service |
+|---------|---------|----------------|
+| Model artifact signing | Cryptographic proof of model provenance and integrity | Sigstore/Cosign for ML artifacts, MLflow model signatures |
+| ML-specific SAST | Scan model files for embedded malicious code | `modelscan` (Protect AI), HuggingFace malware scanning |
+| Model cards / datasheets | Document training data, intended use, limitations, and ethical considerations | HuggingFace Model Cards, Google Model Cards Toolkit |
+| Inference endpoint security | Rate limiting, input validation, and output filtering on model serving endpoints | AWS SageMaker endpoint policies, HuggingFace Inference Endpoints ACLs |
+| Adversarial robustness testing | Test model behavior under adversarial inputs | IBM Adversarial Robustness Toolbox (ART), Microsoft Counterfit |
+| Model monitoring for drift/attack | Detect distribution shifts that may indicate data poisoning or adversarial manipulation | NannyML, Evidently AI, WhyLabs |
+
+**Output:** ML model security findings table with CWE references, affected model artifacts, and remediation.
 
 ---
 
@@ -538,7 +595,7 @@ Also check:
 
 ---
 
-### Phase 10: Data Classification (Both modes)
+### Phase 10: Data Classification & AI Regulatory Compliance (Both modes)
 
 Classify all data stores and data flows by sensitivity level:
 
@@ -561,7 +618,47 @@ Also check:
 - **GDPR/CCPA**: If the system handles EU/California user data, check for consent mechanisms, data deletion capabilities, and data portability
 - **Data retention**: Are there policies for how long data is kept? Are they enforced?
 
-**Output:** Data classification table with gaps and required remediation.
+#### AI Regulatory Compliance
+
+If the project trains or deploys ML models, evaluate compliance with emerging AI-specific regulations. These laws impose obligations beyond traditional data protection, targeting the AI system itself — its risk classification, transparency, and governance.
+
+**EU AI Act** (enforceable August 2, 2026):
+
+| Check | What to look for | Severity |
+|-------|-----------------|----------|
+| High-risk classification | Does any model output influence employment decisions (hiring, performance evaluation, contract renewal, task allocation, termination)? Education decisions? Credit/insurance decisions? If yes, the system is likely high-risk under Annex III. | Critical |
+| Prohibited practices | Does the system use emotion recognition in the workplace? Biometric categorization to infer protected characteristics? Social scoring? If yes, these are prohibited (effective February 2025). | Critical |
+| Conformity assessment | For high-risk systems: is there documentation of the intended purpose, risk management measures, training data governance, human oversight mechanisms, and accuracy/robustness metrics? | High |
+| Human oversight | For high-risk systems: can a human effectively oversee the AI output and override or disregard it? Is this documented? | High |
+| Transparency | For systems interacting with people: are users informed they are interacting with an AI system? For generative AI: is AI-generated content labeled? | Medium |
+| Technical documentation | For high-risk systems: system description, design specifications, monitoring and logging capabilities, instructions for use, accuracy metrics, and known limitations. | High |
+
+**Biometric data regulations:**
+
+| Regulation | Scope | What to check | Severity |
+|------------|-------|---------------|----------|
+| **Illinois BIPA** | Biometric identifiers (face geometry, fingerprints, iris scans, voiceprints) and data derived from them | Written informed consent before collection; published retention/destruction policy; no sale of biometric data. Private right of action: $1,000-$5,000 per violation. | Critical |
+| **CCPA/CPRA** | "Sensitive personal information" including biometric data processed to uniquely identify a consumer | Opt-in consent for processing; right to limit use; privacy policy disclosure. Applies to California residents. | High |
+| **Texas CUBI / Washington WFBPA** | Biometric identifiers | Similar consent and retention requirements. Texas: no private right of action. Washington: private right of action. | High |
+
+**EU Data Act** (applicable September 12, 2025):
+
+| Check | What to look for | Severity |
+|-------|-----------------|----------|
+| Connected product data | Does the system process data generated by IoT devices, wearables, or sensors? If yes, the EU Data Act creates portability rights for the users of those devices. | High |
+| Data holder obligations | If the system holds connected product data, users have a right to access and port that data — including to third parties. This right cannot be contractually overridden. | High |
+| Cloud switching | Chapter VI imposes obligations on data processing services to facilitate switching and interoperability. Relevant for SaaS/PaaS analytics platforms. | Medium |
+
+**UK Data (Use and Access) Act 2025** (Royal Assent June 19, 2025):
+
+| Check | What to look for | Severity |
+|-------|-----------------|----------|
+| UK GDPR divergence | If the system processes data of UK residents: UK now has "recognised legitimate interests" as an expanded lawful basis. Solely automated decision-making rules have been broadened. | Medium |
+| EU adequacy | If data flows between EU and UK: EU adequacy decision was extended to December 27, 2025. If the system relies on adequacy (not SCCs) for cross-border transfers, verify current status. | High |
+
+For each applicable regulation: document which requirements apply, current compliance status, and gaps requiring remediation.
+
+**Output:** Data classification table and AI regulatory compliance assessment with gaps and required remediation.
 
 ---
 
@@ -600,6 +697,7 @@ Evaluate the system's ability to detect and respond to security incidents:
 | Control | Purpose | Tool / Service |
 |---------|---------|----------------|
 | SIEM integration | Centralized security event correlation and analysis | Splunk, Datadog Security, Elastic Security, AWS Security Hub |
+| Agentic SIEM | AI-assisted threat detection, triage, and response using LLM agents over security telemetry | Databricks Lakewatch, Microsoft Security Copilot (Sentinel), Google Chronicle + Gemini |
 | SOC alerting rules | Predefined detection rules for common attack patterns | Sigma rules, Splunk Security Essentials, Datadog OOTB rules |
 | Automated incident response | Auto-remediate common incidents (block IP, revoke token, isolate host) | AWS Lambda + Security Hub, PagerDuty Automation, Tines |
 | Compliance dashboards | Map security controls to compliance frameworks | SOC2 (Vanta, Drata), ISO 27001, PCI-DSS, HIPAA |
@@ -690,9 +788,11 @@ Present concrete findings with fix status:
 | Phase | Standard | Enterprise |
 |-------|----------|------------|
 | Phase 0: Code Patterns | [X checks run / Y findings] | [SAST tool: configured/not configured] |
+| Phase 4b: ML/AI Model Security | [X/5 serialization checks / X/4 provenance checks] | [Model scanning: configured/not configured] |
 | Phase 5: Web Headers | [X/12 headers present] | [WAF headers: configured/not configured] |
 | Phase 6: API Security | [X/10 checks passed] | [API gateway WAF: configured/not configured] |
 | Phase 7: Auth & Session | [X/14 checks passed] | [MFA: enabled/not enabled] |
+| Phase 10: AI Regulatory | [X regulations assessed / Y gaps] | [Conformity assessment: complete/not started] |
 | ... | ... | ... |
 
 ### Security Posture Rating
