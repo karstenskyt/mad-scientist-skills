@@ -2,7 +2,7 @@
 
 ![Mad Scientist Skills](assets/mad-scientist.jpg)
 
-A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for software architecture, cognitive interface auditing, security auditing, observability auditing, optimization auditing, and pre-commit quality gates.
+A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for software architecture, cognitive interface auditing, security auditing, observability auditing, optimization auditing, documentation auditing, and pre-commit quality gates.
 
 ## Skills
 
@@ -10,6 +10,7 @@ A collection of specialized [Claude Code](https://docs.anthropic.com/en/docs/cla
 |-------|-------------|--------|
 | **c4** | C4 architecture diagrams using Structurizr DSL — self-contained HTML with embedded SVGs | `/mad-scientist-skills:c4` |
 | **cognitive-interface-audit** | Single-tier cognitive interface audit — GOMS, Norman's Gulfs, Wood 7-layer error tolerance, Gergle visual grounding, NASA-TLX, Dual-Process Theory, Cleveland & McGill, Trust Calibration, Information Foraging, Gestalt, Ecological Interface Design, accessibility | `/mad-scientist-skills:cognitive-interface-audit` |
+| **documentation-audit** | Single-tier documentation audit — Diataxis structural taxonomy, Strunk & White linguistic precision, Google/Microsoft style guides, Cognitive Load Theory, Carroll's Minimalism, Lemov instructional techniques, information foraging, audience calibration | `/mad-scientist-skills:documentation-audit` |
 | **final-review** | Pre-commit quality gate — code review, documentation check, and architecture diagram generation | `/mad-scientist-skills:final-review` |
 | **observability-audit** | Two-tier observability audit (Standard/Enterprise) — instrumentation, logging, metrics, tracing, pipeline/ML monitoring, alerting, SLIs/SLOs (beta) | `/mad-scientist-skills:observability-audit` |
 | **optimization-audit** | Single-tier optimization audit — algorithm efficiency, database queries, caching, concurrency, pipelines, distributed execution, cloud cost, profiling | `/mad-scientist-skills:optimization-audit` |
@@ -114,6 +115,47 @@ Ask naturally ("Audit the UI for this project", "Check usability", "Mental model
 
 ```
 /mad-scientist-skills:cognitive-interface-audit
+```
+
+</details>
+
+<details>
+<summary><strong>documentation-audit</strong> — Single-Tier Documentation Audit</summary>
+
+Two-mode, single-tier documentation analysis: **planning** (before docs exist) and **audit** (existing docs). Grounded in seven research threads: classical composition (Strunk & White), enterprise style standards (Google/Microsoft), structural taxonomy (Diataxis, Good Docs Project), Cognitive Load Theory (Sweller, Chandler & Sweller), minimalist instruction (Carroll), instructional techniques (Lemov), and information foraging (Pirolli & Card).
+
+### Coverage
+
+| Phase | Area | Planning | Audit |
+|-------|------|:--------:|:-----:|
+| 0 | Anti-pattern scanning (passive voice, needless words, inclusive language, structural pollution) | | x |
+| 1 | Documentation surface discovery | x | x |
+| 2 | Diataxis classification (quadrant identity, pollution detection, missing types) | x | x |
+| 3 | Linguistic precision (Strunk & White, Google/Microsoft style rules) | | x |
+| 4 | Pedagogical scaffolding (CLT, Carroll, Merrill, Lemov techniques) | x | x |
+| 5 | Structural consistency (vocabulary, formatting, template adherence) | | x |
+| 6 | Repository architecture (README, CONTRIBUTING, SECURITY, CHANGELOG, API docs) | | x |
+| 7 | Audience calibration (expert blind spot, information scent, assumed context) | | x |
+| 8 | Completeness & freshness (broken links, outdated content, missing gaps) | | x |
+| 9 | Findings report | x | x |
+
+### Templates
+
+| Template | Purpose |
+|----------|---------|
+| `diataxis-checklist.md` | Quadrant classification, pollution detection, Good Docs Project extensions |
+| `linguistic-rules.md` | Strunk & White rules, Google/Microsoft rules, grep patterns, inclusive language |
+| `pedagogical-scaffolding.md` | Carroll's Minimalism, CLT, Merrill's First Principles, Lemov techniques with annotated work samples |
+| `repo-architecture.md` | Essential file checklist with required sections |
+| `audience-calibration.md` | Expert blind spot worksheet, information scent scoring, assumed context checklist |
+| `audit-methodology.md` | Portable Lemov audit methodology (reusable by other audit skills) |
+
+### Usage
+
+Ask naturally ("Audit the docs", "Documentation review", "Check doc quality") or invoke directly:
+
+```
+/mad-scientist-skills:documentation-audit
 ```
 
 </details>

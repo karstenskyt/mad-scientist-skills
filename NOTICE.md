@@ -262,6 +262,85 @@ and Practices.* Prentice Hall.
 Principles: SOLID (Single Responsibility, Open-Closed, Liskov
 Substitution, Interface Segregation, Dependency Inversion).
 
+## documentation-audit
+
+Strunk, W. Jr. & White, E.B. (1918; 4th ed. 1999). *The Elements of
+Style.* Longman.
+Framework: Classical composition rules (active voice, omit needless
+words, positive form, parallel construction).
+
+Google. (2017-present). *Google Developer Documentation Style Guide.*
+https://developers.google.com/style
+Standard: Developer documentation style rules.
+
+Microsoft. (2018-present). *Microsoft Writing Style Guide.*
+https://learn.microsoft.com/style-guide
+Standard: Technical writing style rules.
+
+Procida, D. (2017-present). *Diataxis: A Systematic Framework for
+Technical Documentation Authoring.* https://diataxis.fr
+Framework: Four-quadrant documentation taxonomy (Tutorial, How-To,
+Reference, Explanation).
+
+Good Docs Project. (2019-present). *The Good Docs Project.*
+https://thegooddocsproject.dev
+Templates: README, changelog, ADR, troubleshooting, migration guide.
+
+Sweller, J. (1988). "Cognitive Load During Problem Solving: Effects on
+Learning." *Cognitive Science,* 12(2), 257-285.
+Framework: Cognitive Load Theory (intrinsic, extraneous, germane load).
+
+Chandler, P. & Sweller, J. (1992). "The Split-Attention Effect as a
+Factor in the Design of Instruction." *British Journal of Educational
+Psychology,* 62(2), 233-246.
+Effect: Split-attention in documentation layout.
+
+Carroll, J.M. (1990). *The Nurnberg Funnel: Designing Minimalist
+Instruction for Practical Computer Skill.* MIT Press.
+Framework: Minimalist instruction for software documentation.
+
+Merrill, M.D. (2002). "First Principles of Instruction." *Educational
+Technology Research and Development,* 50(3), 43-59.
+Framework: Task-centered, activation, demonstration, application,
+integration.
+
+Lemov, D. (2021). *Teach Like a Champion 3.0: 63 Techniques That Put
+Students on the Path to College.* Jossey-Bass.
+Techniques: Exemplar Planning, Plan for Error, Active Observation,
+Standardize the Format, Right Is Right, Take the Steps, Knowledge
+Organizers, Retrieval Practice, Everybody Writes, Stretch It, Exit
+Ticket.
+
+Lemov, D. (2020). *The Coach's Guide to Teaching.* John Catt Educational.
+Supplementary source for cognitive science applications in instruction.
+
+Pirolli, P. & Card, S.K. (1999). "Information Foraging."
+*Psychological Review,* 106(4), 643-675.
+Framework: Information scent and navigation scent scoring.
+
+Willingham, D.T. (2009). *Why Don't Students Like School?* Jossey-Bass.
+Framework: Working memory / long-term memory model for instruction.
+
+Wolf, M. (2018). *Reader, Come Home: The Reading Brain in a Digital
+World.* Harper.
+Research: Neuroplastic skimming and the attention crisis.
+
+Ebbinghaus, H. (1885). *Über das Gedächtnis.* Duncker & Humblot.
+Research: Forgetting curve and spaced retrieval.
+
+Hinds, P.J. (1999). "The Curse of Expertise: The Effects of Expertise
+and Debiasing Methods on Predictions of Novice Performance." *Journal of
+Experimental Psychology: Applied,* 5(2), 205-221.
+Framework: Expert blind spot in documentation authoring.
+
+Brown, P.C., Roediger, H.L. III & McDaniel, M.A. (2014). *Make It
+Stick: The Science of Successful Learning.* Belknap Press.
+Framework: Retrieval practice and elaboration.
+
+Wayne, H. (2023). "My Problem With the Four-Document Model."
+hillelwayne.com.
+Critique: Diataxis framework limitations and gaps.
+
 ## c4
 
 Brown, S. (2018-present). "The C4 Model for Visualising Software
